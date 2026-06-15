@@ -3,375 +3,815 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Календарь с заметками</title>
+    <title>Календарь++</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --primary: #6C63FF;
+            --primary-dark: #5A52D5;
+            --danger: #FF6B6B;
+            --danger-dark: #E55A5A;
+            --bg-grad-a: #667eea;
+            --bg-grad-b: #764ba2;
+            --surface: #FFFFFF;
+            --surface-2: #F6F7FF;
+            --text: #2D2D44;
+            --text-muted: #8889A8;
+            --border: #DDE0F5;
+            --today-bg: #FFFBEB;
+            --today-ring: #FBBF24;
+            --selected-bg: #EEF0FF;
+            --selected-ring: #6C63FF;
+            --r: 12px;
+            --r-sm: 7px;
+            --shadow: 0 2px 12px rgba(108,99,255,.12);
+            --shadow-lg: 0 8px 32px rgba(108,99,255,.2);
+            --ease: .18s ease;
         }
-        
+        * { margin:0; padding:0; box-sizing:border-box; }
         body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--bg-grad-a), var(--bg-grad-b));
             min-height: 100vh;
             padding: 20px;
+            color: var(--text);
         }
-        
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 10px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        .app { max-width: 1220px; margin: 0 auto; }
+
+        /* ── Header ── */
+        .header {
+            display: flex; align-items: center; gap: 14px;
+            margin-bottom: 18px; flex-wrap: wrap;
         }
-        
-        h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 30px;
+        .logo {
+            font-size: 26px; font-weight: 800; color: #fff;
+            text-shadow: 0 2px 8px rgba(0,0,0,.2);
+            white-space: nowrap;
         }
-        
-        .controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-            gap: 15px;
+        .search-wrap { flex: 1; position: relative; min-width: 180px; }
+        .search-wrap svg {
+            position: absolute; left: 11px; top: 50%;
+            transform: translateY(-50%); pointer-events: none;
+            color: var(--text-muted);
         }
-        
-        button {
-            padding: 10px 20px;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background 0.3s;
+        .search-input {
+            width: 100%; padding: 10px 12px 10px 36px;
+            border: none; border-radius: var(--r);
+            background: rgba(255,255,255,.95);
+            font-size: 14px; color: var(--text); outline: none;
+            box-shadow: var(--shadow);
+            transition: box-shadow var(--ease);
         }
-        
-        button:hover {
-            background: #764ba2;
+        .search-input:focus { box-shadow: 0 0 0 3px rgba(108,99,255,.35), var(--shadow); }
+        .search-input::placeholder { color: var(--text-muted); }
+        .btn-hdr {
+            padding: 10px 18px;
+            background: rgba(255,255,255,.18);
+            color: #fff; border: 1.5px solid rgba(255,255,255,.4);
+            border-radius: var(--r); cursor: pointer;
+            font-size: 13px; font-weight: 700;
+            backdrop-filter: blur(4px);
+            transition: background var(--ease);
+            white-space: nowrap;
         }
-        
-        .month-display {
-            text-align: center;
-            font-size: 24px;
-            font-weight: bold;
-            color: #333;
-            min-width: 200px;
+        .btn-hdr:hover { background: rgba(255,255,255,.32); }
+
+        /* ── Main layout ── */
+        .main { display: flex; gap: 18px; align-items: flex-start; }
+
+        /* ── Calendar card ── */
+        .cal-card {
+            background: var(--surface); border-radius: var(--r);
+            box-shadow: var(--shadow-lg); padding: 24px;
+            flex: 1; min-width: 0;
         }
-        
-        .calendar {
+        .cal-hdr {
+            display: flex; align-items: center;
+            justify-content: space-between; margin-bottom: 18px;
+        }
+        .cal-nav {
+            width: 36px; height: 36px; border: none;
+            border-radius: 50%; background: var(--surface-2);
+            cursor: pointer; font-size: 20px; line-height: 1;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--text); transition: all var(--ease);
+        }
+        .cal-nav:hover { background: var(--primary); color: #fff; }
+        .cal-month { font-size: 20px; font-weight: 700; color: var(--text); }
+        .cal-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 10px;
-            margin-bottom: 30px;
+            gap: 5px;
         }
-        
-        .day-header {
-            text-align: center;
-            font-weight: bold;
-            color: #667eea;
-            padding: 10px;
-            border-bottom: 2px solid #667eea;
+        .day-name {
+            text-align: center; font-size: 11px;
+            font-weight: 700; color: var(--text-muted);
+            padding: 6px 2px; text-transform: uppercase; letter-spacing: .05em;
         }
-        
-        .day {
-            min-height: 100px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 8px;
-            background: #f9f9f9;
-            cursor: pointer;
-            transition: all 0.3s;
-            position: relative;
+        .day-name.wknd { color: var(--danger); }
+        .day-cell {
+            min-height: 76px; border: 1.5px solid var(--border);
+            border-radius: var(--r-sm); padding: 6px;
+            cursor: pointer; background: var(--surface);
+            display: flex; flex-direction: column; gap: 3px;
+            transition: border-color var(--ease), box-shadow var(--ease);
         }
-        
-        .day:hover {
-            background: #f0f0f0;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        .day-cell:hover { border-color: var(--primary); box-shadow: var(--shadow); }
+        .day-cell.other-month { background: var(--surface-2); opacity: .45; }
+        .day-cell.other-month:hover { opacity: .75; }
+        .day-cell.today { background: var(--today-bg); border-color: var(--today-ring); }
+        .day-cell.selected { background: var(--selected-bg); border-color: var(--selected-ring); box-shadow: 0 0 0 3px rgba(108,99,255,.18); }
+        .day-num {
+            font-size: 13px; font-weight: 700;
+            color: var(--text); line-height: 1;
         }
-        
-        .day.other-month {
-            background: #e8e8e8;
-            color: #999;
+        .day-cell.today .day-num {
+            background: var(--primary); color: #fff;
+            width: 22px; height: 22px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 11px;
         }
-        
-        .day.today {
-            background: #fff3cd;
-            border: 2px solid #ffc107;
+        .day-cell.other-month .day-num { color: var(--text-muted); }
+        .note-dots { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 2px; }
+        .note-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+        .note-snippet {
+            font-size: 10px; color: var(--text);
+            white-space: nowrap; overflow: hidden;
+            text-overflow: ellipsis; opacity: .7;
+            line-height: 1.3;
         }
-        
-        .day-number {
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 5px;
+
+        /* ── Side panel ── */
+        .side-panel {
+            width: 0; overflow: hidden; opacity: 0;
+            background: var(--surface); border-radius: var(--r);
+            box-shadow: var(--shadow-lg);
+            display: flex; flex-direction: column;
+            max-height: calc(100vh - 110px);
+            transition: width .22s ease, opacity .22s ease;
+            flex-shrink: 0;
         }
-        
-        .day.other-month .day-number {
-            color: #999;
+        .side-panel.open { width: 340px; opacity: 1; }
+        .panel-hdr {
+            padding: 18px 16px 14px;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+            display: flex; align-items: center;
+            justify-content: space-between; gap: 8px;
         }
-        
-        .day-notes {
-            font-size: 12px;
-            color: #666;
-            max-height: 60px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
+        .panel-date { font-size: 16px; font-weight: 700; color: var(--text); }
+        .panel-body {
+            flex: 1; overflow-y: auto;
+            padding: 14px; display: flex;
+            flex-direction: column; gap: 10px;
         }
-        
-        .day-notes.has-notes {
-            color: #e74c3c;
-            font-weight: bold;
+        .panel-body::-webkit-scrollbar { width: 4px; }
+        .panel-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+        /* ── Note card ── */
+        .note-card {
+            background: var(--surface-2); border-radius: var(--r-sm);
+            padding: 11px; border-left: 4px solid var(--primary);
+            transition: box-shadow var(--ease);
         }
-        
-        .modal {
+        .note-card:hover { box-shadow: var(--shadow); }
+        .note-card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+        .note-text {
+            font-size: 14px; color: var(--text); line-height: 1.55;
+            flex: 1; white-space: pre-wrap; word-break: break-word;
+        }
+        .note-text.editing { display: none; }
+        .note-actions {
+            display: flex; gap: 3px; flex-shrink: 0;
+            opacity: 0; transition: opacity var(--ease);
+        }
+        .note-card:hover .note-actions { opacity: 1; }
+        .note-meta { margin-top: 7px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        .grp-badge {
+            font-size: 10px; padding: 2px 7px;
+            border-radius: 10px; color: #fff; font-weight: 700;
+        }
+        .color-pip { width: 9px; height: 9px; border-radius: 50%; }
+
+        /* ── Edit form ── */
+        .edit-form { display: none; }
+        .edit-form.on { display: block; }
+        .edit-ta, .add-ta {
+            width: 100%; padding: 7px 9px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--r-sm);
+            font-family: inherit; font-size: 13px;
+            resize: vertical; min-height: 70px;
+            color: var(--text); background: var(--surface);
+            outline: none; transition: border-color var(--ease);
+        }
+        .edit-ta:focus, .add-ta:focus { border-color: var(--primary); }
+        .form-row {
+            display: flex; gap: 8px; align-items: center;
+            margin-top: 8px; flex-wrap: wrap;
+        }
+        .form-lbl { font-size: 11px; font-weight: 700; color: var(--text-muted); flex-shrink: 0; }
+        .color-picker { display: flex; gap: 5px; flex-wrap: wrap; }
+        .swatch {
+            width: 20px; height: 20px; border-radius: 50%;
+            cursor: pointer; border: 2px solid transparent;
+            transition: transform .12s, border-color .12s;
+        }
+        .swatch.on { border-color: var(--text); transform: scale(1.25); }
+        .grp-sel {
+            padding: 4px 8px; border: 1.5px solid var(--border);
+            border-radius: var(--r-sm); font-size: 13px;
+            color: var(--text); background: var(--surface);
+            cursor: pointer; outline: none;
+        }
+        .grp-sel:focus { border-color: var(--primary); }
+        .form-btns { display: flex; gap: 7px; justify-content: flex-end; margin-top: 10px; }
+
+        /* ── Add note form ── */
+        .add-form {
+            background: var(--surface-2); border-radius: var(--r-sm);
+            padding: 12px; border: 1.5px dashed var(--border);
             display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
         }
-        
-        .modal.active {
-            display: flex;
+        .add-form.on { display: block; }
+        .btn-add-note {
+            width: 100%; padding: 9px;
+            background: transparent; border: 1.5px dashed var(--border);
+            border-radius: var(--r-sm); color: var(--text-muted);
+            cursor: pointer; font-size: 13px;
+            transition: all var(--ease);
+            display: flex; align-items: center; justify-content: center; gap: 5px;
         }
-        
-        .modal-content {
-            background: white;
-            border-radius: 10px;
-            padding: 30px;
-            max-width: 400px;
-            width: 90%;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        .btn-add-note:hover { border-color: var(--primary); color: var(--primary); background: var(--selected-bg); }
+
+        /* ── Buttons ── */
+        .btn {
+            padding: 7px 14px; border: none;
+            border-radius: var(--r-sm); cursor: pointer;
+            font-size: 12px; font-weight: 700;
+            transition: all var(--ease);
         }
-        
-        .modal-header {
-            font-size: 20px;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 20px;
+        .btn-primary { background: var(--primary); color: #fff; }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-ghost { background: transparent; color: var(--text-muted); }
+        .btn-ghost:hover { background: var(--border); color: var(--text); }
+        .btn-icon {
+            width: 28px; height: 28px; border: none;
+            border-radius: 50%; background: transparent;
+            cursor: pointer; font-size: 14px;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--text-muted); transition: background var(--ease);
         }
-        
-        textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-family: Arial, sans-serif;
-            resize: vertical;
-            min-height: 100px;
-            margin-bottom: 15px;
-            font-size: 14px;
+        .btn-icon:hover { background: var(--border); color: var(--text); }
+
+        /* ── Empty state ── */
+        .empty { text-align: center; padding: 24px 10px; color: var(--text-muted); }
+        .empty-ico { font-size: 36px; margin-bottom: 8px; }
+        .empty-txt { font-size: 13px; }
+
+        /* ── Search results ── */
+        .search-results {
+            background: var(--surface); border-radius: var(--r);
+            box-shadow: var(--shadow-lg); padding: 20px;
+            margin-top: 18px; display: none;
         }
-        
-        .modal-buttons {
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
+        .search-results.on { display: block; }
+        .sr-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 12px; }
+        .sr-item {
+            padding: 11px 12px; border-radius: var(--r-sm);
+            background: var(--surface-2); margin-bottom: 8px;
+            cursor: pointer; border-left: 4px solid var(--primary);
+            transition: box-shadow var(--ease);
         }
-        
-        .btn-save {
-            background: #27ae60;
+        .sr-item:hover { box-shadow: var(--shadow); }
+        .sr-date { font-size: 11px; color: var(--text-muted); font-weight: 700; margin-bottom: 3px; }
+        .sr-text { font-size: 13px; color: var(--text); line-height: 1.4; }
+        .sr-text mark { background: #FBBF24; border-radius: 2px; padding: 0 2px; }
+        .sr-empty { text-align: center; color: var(--text-muted); padding: 18px; font-size: 13px; }
+
+        /* ── Groups modal ── */
+        .overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,.48); z-index: 1000;
+            align-items: center; justify-content: center;
+            backdrop-filter: blur(4px);
         }
-        
-        .btn-save:hover {
-            background: #229954;
+        .overlay.on { display: flex; }
+        .modal-box {
+            background: var(--surface); border-radius: var(--r);
+            padding: 26px; width: 420px; max-width: 95vw;
+            box-shadow: var(--shadow-lg);
+            max-height: 90vh; overflow-y: auto;
         }
-        
-        .btn-delete {
-            background: #e74c3c;
+        .modal-title {
+            font-size: 18px; font-weight: 800; color: var(--text);
+            margin-bottom: 18px;
+            display: flex; justify-content: space-between; align-items: center;
         }
-        
-        .btn-delete:hover {
-            background: #c0392b;
+        .grp-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 9px 11px; border-radius: var(--r-sm);
+            background: var(--surface-2); margin-bottom: 7px;
         }
-        
-        .btn-cancel {
-            background: #95a5a6;
+        .grp-circ { width: 13px; height: 13px; border-radius: 50%; flex-shrink: 0; }
+        .grp-name { flex: 1; font-size: 13px; font-weight: 600; color: var(--text); }
+        .add-grp-form { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 4px; }
+        .grp-input {
+            flex: 1; padding: 8px 11px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--r-sm); font-size: 13px;
+            color: var(--text); outline: none; min-width: 100px;
         }
-        
-        .btn-cancel:hover {
-            background: #7f8c8d;
+        .grp-input:focus { border-color: var(--primary); }
+        .grp-list { margin-bottom: 16px; }
+
+        @media (max-width: 700px) {
+            .main { flex-direction: column; }
+            .side-panel.open { width: 100%; }
+            .day-cell { min-height: 54px; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>📅 Календарь с заметками</h1>
-        
-        <div class="controls">
-            <button onclick="previousMonth()">← Предыдущий</button>
-            <div class="month-display" id="monthDisplay"></div>
-            <button onclick="nextMonth()">Следующий →</button>
+<div class="app">
+
+    <!-- Header -->
+    <div class="header">
+        <div class="logo">📅 Календарь++</div>
+        <div class="search-wrap">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"
+                 viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input class="search-input" id="searchInput"
+                   type="text" placeholder="Поиск по заметкам…"
+                   oninput="handleSearch(this.value)">
         </div>
-        
-        <div class="calendar" id="calendar"></div>
+        <button class="btn-hdr" onclick="openGroups()">🏷 Группы</button>
     </div>
-    
-    <div class="modal" id="noteModal">
-        <div class="modal-content">
-            <div class="modal-header" id="modalHeader"></div>
-            <textarea id="noteText" placeholder="Введите вашу заметку..."></textarea>
-            <div class="modal-buttons">
-                <button class="btn-delete" onclick="deleteNote()" id="deleteBtn">Удалить</button>
-                <button class="btn-cancel" onclick="closeModal()">Отмена</button>
-                <button class="btn-save" onclick="saveNote()">Сохранить</button>
+
+    <!-- Main -->
+    <div class="main">
+        <!-- Calendar -->
+        <div class="cal-card">
+            <div class="cal-hdr">
+                <button class="cal-nav" onclick="changeMonth(-1)">‹</button>
+                <div class="cal-month" id="calMonth"></div>
+                <button class="cal-nav" onclick="changeMonth(1)">›</button>
+            </div>
+            <div class="cal-grid" id="calGrid"></div>
+        </div>
+
+        <!-- Side panel -->
+        <div class="side-panel" id="sidePanel">
+            <div class="panel-hdr">
+                <div class="panel-date" id="panelDate"></div>
+                <button class="btn-icon" onclick="closePanel()" title="Закрыть">✕</button>
+            </div>
+            <div class="panel-body" id="panelBody"></div>
+        </div>
+    </div>
+
+    <!-- Search results -->
+    <div class="search-results" id="searchResults"></div>
+</div>
+
+<!-- Groups modal -->
+<div class="overlay" id="grpOverlay" onclick="if(event.target===this)closeGroups()">
+    <div class="modal-box">
+        <div class="modal-title">
+            <span>🏷 Группы заметок</span>
+            <button class="btn-icon" onclick="closeGroups()">✕</button>
+        </div>
+        <div class="grp-list" id="grpList"></div>
+        <div class="add-grp-form">
+            <input class="grp-input" id="newGrpName" placeholder="Название группы…"
+                   maxlength="28" onkeydown="if(event.key==='Enter')addGroup()">
+            <div class="color-picker" id="grpCpick"></div>
+            <button class="btn btn-primary" onclick="addGroup()">Добавить</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ── Constants ──────────────────────────────────────────────
+const NOTES_K = 'calpp_notes2';
+const GROUPS_K = 'calpp_groups2';
+
+const COLORS = [
+    '#FF6B6B','#FF9F43','#FECA57','#1DD1A1',
+    '#54A0FF','#748FFC','#C56CF0','#FD79A8','#A8A8B3'
+];
+
+const DEFAULT_GROUPS = [
+    { id: 'work',      name: 'Работа',  color: '#748FFC' },
+    { id: 'personal',  name: 'Личное',  color: '#1DD1A1' },
+    { id: 'important', name: 'Важное',  color: '#FF6B6B' },
+];
+
+const MONTHS     = ['Январь','Февраль','Март','Апрель','Май','Июнь',
+                    'Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+const MONTHS_GEN = ['января','февраля','марта','апреля','мая','июня',
+                    'июля','августа','сентября','октября','ноября','декабря'];
+const DAY_NAMES  = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+
+// ── State ──────────────────────────────────────────────────
+let notes    = JSON.parse(localStorage.getItem(NOTES_K))  || {};
+let groups   = JSON.parse(localStorage.getItem(GROUPS_K)) || JSON.parse(JSON.stringify(DEFAULT_GROUPS));
+let cur      = new Date();
+let sel      = null;    // {year, month, day}
+let addColor = COLORS[5];
+let grpColor = COLORS[5];
+let ePalette = {};      // noteId → color during edit
+
+function saveNotes()  { localStorage.setItem(NOTES_K,  JSON.stringify(notes));  }
+function saveGroups() { localStorage.setItem(GROUPS_K, JSON.stringify(groups)); }
+function uid()        { return Math.random().toString(36).slice(2)+Date.now().toString(36); }
+function dk(y,m,d)   { return `${y}-${m}-${d}`; }
+function esc(s)       { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ── Calendar render ────────────────────────────────────────
+function renderCalendar() {
+    const y = cur.getFullYear(), m = cur.getMonth();
+    document.getElementById('calMonth').textContent = `${MONTHS[m]} ${y}`;
+
+    const grid = document.getElementById('calGrid');
+    grid.innerHTML = '';
+
+    DAY_NAMES.forEach((n, i) => {
+        const el = document.createElement('div');
+        el.className = 'day-name' + (i >= 5 ? ' wknd' : '');
+        el.textContent = n;
+        grid.appendChild(el);
+    });
+
+    const dow0  = new Date(y, m, 1).getDay();
+    const start = dow0 === 0 ? 6 : dow0 - 1;
+    const dim   = new Date(y, m + 1, 0).getDate();
+    const dimp  = new Date(y, m, 0).getDate();
+    const today = new Date();
+
+    const pm = m === 0 ? 11 : m - 1, py = m === 0 ? y - 1 : y;
+    for (let i = start - 1; i >= 0; i--)
+        grid.appendChild(makeCell(py, pm, dimp - i, true, false, false));
+
+    for (let d = 1; d <= dim; d++) {
+        const isToday = y === today.getFullYear() && m === today.getMonth() && d === today.getDate();
+        const isSel   = sel && sel.year === y && sel.month === m && sel.day === d;
+        grid.appendChild(makeCell(y, m, d, false, isToday, isSel));
+    }
+
+    const nm = m === 11 ? 0 : m + 1, ny = m === 11 ? y + 1 : y;
+    const used = start + dim;
+    const rest = used % 7 === 0 ? 0 : 7 - (used % 7);
+    for (let d = 1; d <= rest; d++)
+        grid.appendChild(makeCell(ny, nm, d, true, false, false));
+}
+
+function makeCell(y, m, d, other, isToday, isSel) {
+    const cell = document.createElement('div');
+    let cls = 'day-cell';
+    if (other)   cls += ' other-month';
+    if (isToday) cls += ' today';
+    if (isSel)   cls += ' selected';
+    cell.className = cls;
+    cell.onclick = () => selectDay(y, m, d);
+
+    const num = document.createElement('div');
+    num.className = 'day-num';
+    num.textContent = d;
+    cell.appendChild(num);
+
+    const key = dk(y, m, d);
+    const dn  = notes[key] || [];
+    if (dn.length) {
+        const dots = document.createElement('div');
+        dots.className = 'note-dots';
+        dn.slice(0, 5).forEach(n => {
+            const dot = document.createElement('div');
+            dot.className = 'note-dot';
+            dot.style.background = n.color || COLORS[5];
+            dots.appendChild(dot);
+        });
+        cell.appendChild(dots);
+
+        const snip = document.createElement('div');
+        snip.className = 'note-snippet';
+        snip.textContent = dn[0].text.split('\n')[0];
+        cell.appendChild(snip);
+    }
+
+    return cell;
+}
+
+function changeMonth(dir) {
+    cur.setMonth(cur.getMonth() + dir);
+    renderCalendar();
+}
+
+// ── Day panel ──────────────────────────────────────────────
+function selectDay(y, m, d) {
+    sel = { year: y, month: m, day: d };
+    document.getElementById('panelDate').textContent = `${d} ${MONTHS_GEN[m]} ${y}`;
+    document.getElementById('sidePanel').classList.add('open');
+    renderPanel();
+    renderCalendar();
+}
+
+function closePanel() {
+    sel = null;
+    document.getElementById('sidePanel').classList.remove('open');
+    renderCalendar();
+}
+
+function renderPanel() {
+    if (!sel) return;
+    const key = dk(sel.year, sel.month, sel.day);
+    const dn  = notes[key] || [];
+    const body = document.getElementById('panelBody');
+    body.innerHTML = '';
+
+    if (!dn.length) {
+        const e = document.createElement('div');
+        e.className = 'empty';
+        e.innerHTML = '<div class="empty-ico">📝</div><div class="empty-txt">Нет заметок на этот день</div>';
+        body.appendChild(e);
+    } else {
+        dn.forEach(n => body.appendChild(makeNoteCard(n, key)));
+    }
+
+    const addBtn = document.createElement('button');
+    addBtn.className = 'btn-add-note';
+    addBtn.innerHTML = '＋ Добавить заметку';
+    addBtn.onclick = openAddForm;
+    body.appendChild(addBtn);
+
+    body.appendChild(makeAddForm(key));
+}
+
+function makeNoteCard(note, key) {
+    const grp = note.groupId ? groups.find(g => g.id === note.groupId) : null;
+
+    const card = document.createElement('div');
+    card.className = 'note-card';
+    card.id = 'card-' + note.id;
+    card.style.borderLeftColor = note.color || COLORS[5];
+
+    card.innerHTML = `
+        <div class="note-card-top">
+            <div class="note-text" id="nt-${note.id}">${esc(note.text)}</div>
+            <div class="note-actions">
+                <button class="btn-icon" title="Редактировать" onclick="startEdit('${note.id}','${key}')">✏️</button>
+                <button class="btn-icon" title="Удалить" onclick="delNote('${note.id}','${key}')">🗑️</button>
             </div>
         </div>
-    </div>
-    
-    <script>
-        let currentDate = new Date();
-        let selectedDate = null;
-        let notes = JSON.parse(localStorage.getItem('calendarNotes')) || {};
-        
-        function renderCalendar() {
-            const year = currentDate.getFullYear();
-            const month = currentDate.getMonth();
-            
-            // Update month display
-            const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
-                             'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
-            document.getElementById('monthDisplay').textContent = `${monthNames[month]} ${year}`;
-            
-            // Get first day of month and number of days
-            const firstDay = new Date(year, month, 1).getDay();
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
-            const daysInPrevMonth = new Date(year, month, 0).getDate();
-            
-            const calendar = document.getElementById('calendar');
-            calendar.innerHTML = '';
-            
-            // Day headers
-            const dayHeaders = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
-            dayHeaders.forEach(day => {
-                const header = document.createElement('div');
-                header.className = 'day-header';
-                header.textContent = day;
-                calendar.appendChild(header);
-            });
-            
-            // Previous month days
-            const startDay = firstDay === 0 ? 6 : firstDay - 1;
-            for (let i = startDay - 1; i >= 0; i--) {
-                const day = document.createElement('div');
-                day.className = 'day other-month';
-                day.innerHTML = `<div class="day-number">${daysInPrevMonth - i}</div>`;
-                calendar.appendChild(day);
-            }
-            
-            // Current month days
-            const today = new Date();
-            for (let date = 1; date <= daysInMonth; date++) {
-                const day = document.createElement('div');
-                day.className = 'day';
-                
-                // Check if today
-                if (year === today.getFullYear() && 
-                    month === today.getMonth() && 
-                    date === today.getDate()) {
-                    day.classList.add('today');
-                }
-                
-                const dateKey = `${year}-${month}-${date}`;
-                const hasNotes = notes[dateKey];
-                
-                day.innerHTML = `<div class="day-number">${date}</div>`;
-                if (hasNotes) {
-                    day.innerHTML += `<div class="day-notes has-notes">📝 ${hasNotes}</div>`;
-                }
-                
-                day.onclick = () => openModal(year, month, date);
-                calendar.appendChild(day);
-            }
-            
-            // Next month days
-            const totalCells = calendar.children.length - 7; // Subtract day headers
-            const remainingCells = 42 - totalCells; // 6 rows * 7 days
-            for (let i = 1; i <= remainingCells; i++) {
-                const day = document.createElement('div');
-                day.className = 'day other-month';
-                day.innerHTML = `<div class="day-number">${i}</div>`;
-                calendar.appendChild(day);
-            }
-        }
-        
-        function previousMonth() {
-            currentDate.setMonth(currentDate.getMonth() - 1);
-            renderCalendar();
-        }
-        
-        function nextMonth() {
-            currentDate.setMonth(currentDate.getMonth() + 1);
-            renderCalendar();
-        }
-        
-        function openModal(year, month, date) {
-            selectedDate = { year, month, date };
-            const dateKey = `${year}-${month}-${date}`;
-            const noteText = notes[dateKey] || '';
-            
-            document.getElementById('modalHeader').textContent = 
-                `${date} ${['января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
-                           'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'][month]} ${year}`;
-            
-            document.getElementById('noteText').value = noteText;
-            document.getElementById('deleteBtn').style.display = noteText ? 'block' : 'none';
-            document.getElementById('noteModal').classList.add('active');
-        }
-        
-        function closeModal() {
-            document.getElementById('noteModal').classList.remove('active');
-            selectedDate = null;
-        }
-        
-        function saveNote() {
-            if (!selectedDate) return;
-            
-            const dateKey = `${selectedDate.year}-${selectedDate.month}-${selectedDate.date}`;
-            const noteText = document.getElementById('noteText').value.trim();
-            
-            if (noteText) {
-                notes[dateKey] = noteText;
-            } else {
-                delete notes[dateKey];
-            }
-            
-            localStorage.setItem('calendarNotes', JSON.stringify(notes));
-            renderCalendar();
-            closeModal();
-        }
-        
-        function deleteNote() {
-            if (!selectedDate) return;
-            
-            const dateKey = `${selectedDate.year}-${selectedDate.month}-${selectedDate.date}`;
-            delete notes[dateKey];
-            localStorage.setItem('calendarNotes', JSON.stringify(notes));
-            renderCalendar();
-            closeModal();
-        }
-        
-        // Close modal when clicking outside
-        document.getElementById('noteModal').onclick = (e) => {
-            if (e.target.id === 'noteModal') closeModal();
+        <div class="note-meta">
+            <div class="color-pip" style="background:${note.color || COLORS[5]}"></div>
+            ${grp ? `<span class="grp-badge" style="background:${grp.color}">${esc(grp.name)}</span>` : ''}
+        </div>
+        <div class="edit-form" id="ef-${note.id}">
+            <textarea class="edit-ta" id="eta-${note.id}">${esc(note.text)}</textarea>
+            <div class="form-row">
+                <span class="form-lbl">Цвет:</span>
+                <div class="color-picker" id="ecp-${note.id}"></div>
+            </div>
+            <div class="form-row">
+                <span class="form-lbl">Группа:</span>
+                <select class="grp-sel" id="egs-${note.id}">
+                    <option value="">— без группы —</option>
+                    ${groups.map(g=>`<option value="${g.id}"${note.groupId===g.id?' selected':''}>${esc(g.name)}</option>`).join('')}
+                </select>
+            </div>
+            <div class="form-btns">
+                <button class="btn btn-ghost" onclick="cancelEdit('${note.id}')">Отмена</button>
+                <button class="btn btn-primary" onclick="saveEdit('${note.id}','${key}')">Сохранить</button>
+            </div>
+        </div>`;
+
+    ePalette[note.id] = note.color || COLORS[5];
+    requestAnimationFrame(() => {
+        buildPicker('ecp-' + note.id, note.color || COLORS[5], c => { ePalette[note.id] = c; });
+    });
+
+    return card;
+}
+
+function makeAddForm(key) {
+    const f = document.createElement('div');
+    f.className = 'add-form';
+    f.id = 'addForm';
+    f.innerHTML = `
+        <textarea class="add-ta" id="addTa" placeholder="Текст заметки…" rows="3"></textarea>
+        <div class="form-row">
+            <span class="form-lbl">Цвет:</span>
+            <div class="color-picker" id="addCp"></div>
+        </div>
+        <div class="form-row">
+            <span class="form-lbl">Группа:</span>
+            <select class="grp-sel" id="addGs">
+                <option value="">— без группы —</option>
+                ${groups.map(g=>`<option value="${g.id}">${esc(g.name)}</option>`).join('')}
+            </select>
+        </div>
+        <div class="form-btns">
+            <button class="btn btn-ghost" onclick="closeAddForm()">Отмена</button>
+            <button class="btn btn-primary" onclick="addNote('${key}')">Добавить</button>
+        </div>`;
+
+    requestAnimationFrame(() => {
+        buildPicker('addCp', addColor, c => { addColor = c; });
+    });
+
+    return f;
+}
+
+function openAddForm() {
+    const f = document.getElementById('addForm');
+    if (f) { f.classList.add('on'); document.getElementById('addTa').focus(); }
+}
+function closeAddForm() {
+    const f = document.getElementById('addForm');
+    if (f) f.classList.remove('on');
+}
+
+function addNote(key) {
+    const text = (document.getElementById('addTa').value || '').trim();
+    if (!text) return;
+    const gid = document.getElementById('addGs').value;
+    if (!notes[key]) notes[key] = [];
+    notes[key].push({ id: uid(), text, color: addColor, groupId: gid || null });
+    saveNotes(); renderCalendar(); renderPanel();
+}
+
+function startEdit(nid, key) {
+    document.getElementById('nt-' + nid).classList.add('editing');
+    document.getElementById('ef-' + nid).classList.add('on');
+    document.getElementById('eta-' + nid).focus();
+}
+
+function cancelEdit(nid) {
+    document.getElementById('nt-' + nid).classList.remove('editing');
+    document.getElementById('ef-' + nid).classList.remove('on');
+}
+
+function saveEdit(nid, key) {
+    const text = (document.getElementById('eta-' + nid).value || '').trim();
+    if (!text) return;
+    const gid  = document.getElementById('egs-' + nid).value;
+    const note = (notes[key] || []).find(n => n.id === nid);
+    if (note) { note.text = text; note.color = ePalette[nid] || note.color; note.groupId = gid || null; }
+    saveNotes(); renderCalendar(); renderPanel();
+}
+
+function delNote(nid, key) {
+    if (!notes[key]) return;
+    notes[key] = notes[key].filter(n => n.id !== nid);
+    if (!notes[key].length) delete notes[key];
+    saveNotes(); renderCalendar(); renderPanel();
+}
+
+// ── Color picker ───────────────────────────────────────────
+function buildPicker(cid, current, onChange) {
+    const el = document.getElementById(cid);
+    if (!el) return;
+    el.innerHTML = '';
+    COLORS.forEach(c => {
+        const s = document.createElement('div');
+        s.className = 'swatch' + (c === current ? ' on' : '');
+        s.style.background = c;
+        s.onclick = () => {
+            el.querySelectorAll('.swatch').forEach(x => x.classList.remove('on'));
+            s.classList.add('on');
+            onChange(c);
         };
-        
-        // Initial render
-        renderCalendar();
-    </script>
+        el.appendChild(s);
+    });
+}
+
+// ── Search ─────────────────────────────────────────────────
+let srTimer = null;
+
+function handleSearch(q) {
+    clearTimeout(srTimer);
+    srTimer = setTimeout(() => doSearch(q.trim()), 220);
+}
+
+function doSearch(q) {
+    const el = document.getElementById('searchResults');
+    if (!q) { el.classList.remove('on'); el.innerHTML = ''; return; }
+
+    const low  = q.toLowerCase();
+    const hits = [];
+
+    Object.entries(notes).forEach(([key, dn]) => {
+        const [y,m,d] = key.split('-').map(Number);
+        dn.forEach(n => {
+            if (n.text.toLowerCase().includes(low))
+                hits.push({ y, m, d, n });
+        });
+    });
+
+    hits.sort((a,b) => new Date(b.y,b.m,b.d) - new Date(a.y,a.m,a.d));
+
+    el.classList.add('on');
+    el.innerHTML = '';
+
+    const title = document.createElement('div');
+    title.className = 'sr-title';
+    title.textContent = hits.length
+        ? `Найдено: ${hits.length} ${plural(hits.length,'заметка','заметки','заметок')}`
+        : 'Ничего не найдено';
+    el.appendChild(title);
+
+    if (!hits.length) {
+        const e = document.createElement('div');
+        e.className = 'sr-empty';
+        e.textContent = `По запросу «${q}» заметок нет`;
+        el.appendChild(e);
+        return;
+    }
+
+    hits.forEach(({ y, m, d, n }) => {
+        const grp = n.groupId ? groups.find(g => g.id === n.groupId) : null;
+        const item = document.createElement('div');
+        item.className = 'sr-item';
+        item.style.borderLeftColor = n.color || COLORS[5];
+        item.innerHTML = `
+            <div class="sr-date">
+                ${d} ${MONTHS_GEN[m]} ${y}
+                ${grp ? `<span class="grp-badge" style="background:${grp.color};margin-left:6px">${esc(grp.name)}</span>` : ''}
+            </div>
+            <div class="sr-text">${hilite(esc(n.text), q)}</div>`;
+        item.onclick = () => {
+            cur = new Date(y, m, 1);
+            document.getElementById('searchInput').value = '';
+            el.classList.remove('on'); el.innerHTML = '';
+            renderCalendar();
+            selectDay(y, m, d);
+        };
+        el.appendChild(item);
+    });
+}
+
+function hilite(txt, q) {
+    const rx = new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi');
+    return txt.replace(rx, '<mark>$1</mark>');
+}
+
+function plural(n, one, few, many) {
+    if (n % 10 === 1 && n % 100 !== 11) return one;
+    if ([2,3,4].includes(n % 10) && ![12,13,14].includes(n % 100)) return few;
+    return many;
+}
+
+// ── Groups ─────────────────────────────────────────────────
+function openGroups() {
+    renderGrpList();
+    buildPicker('grpCpick', grpColor, c => { grpColor = c; });
+    document.getElementById('grpOverlay').classList.add('on');
+}
+function closeGroups() { document.getElementById('grpOverlay').classList.remove('on'); }
+
+function renderGrpList() {
+    const list = document.getElementById('grpList');
+    list.innerHTML = '';
+    if (!groups.length) {
+        list.innerHTML = '<div class="sr-empty">Группы не созданы</div>';
+        return;
+    }
+    groups.forEach(g => {
+        const item = document.createElement('div');
+        item.className = 'grp-item';
+        item.innerHTML = `
+            <div class="grp-circ" style="background:${g.color}"></div>
+            <div class="grp-name">${esc(g.name)}</div>
+            <button class="btn-icon" onclick="delGroup('${g.id}')">🗑️</button>`;
+        list.appendChild(item);
+    });
+}
+
+function addGroup() {
+    const name = (document.getElementById('newGrpName').value || '').trim();
+    if (!name) return;
+    groups.push({ id: uid(), name, color: grpColor });
+    saveGroups();
+    document.getElementById('newGrpName').value = '';
+    renderGrpList();
+}
+
+function delGroup(id) {
+    groups = groups.filter(g => g.id !== id);
+    Object.values(notes).forEach(dn => dn.forEach(n => { if (n.groupId === id) n.groupId = null; }));
+    saveNotes(); saveGroups(); renderGrpList();
+    if (sel) renderPanel();
+}
+
+// ── Keyboard ───────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+    if (e.key !== 'Escape') return;
+    if (document.getElementById('grpOverlay').classList.contains('on')) { closeGroups(); return; }
+    closePanel();
+});
+
+// ── Init ───────────────────────────────────────────────────
+renderCalendar();
+</script>
 </body>
 </html>
