@@ -92,7 +92,7 @@
         .tgrid-scroll::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
         .tgrid-inner { display:flex; position:relative; }
         .tgrid-hours { width:54px; flex-shrink:0; }
-        .tlabel { height:56px; display:flex; align-items:flex-start; justify-content:flex-end; padding-right:8px; font-size:10px; color:var(--text-muted); margin-top:-7px; }
+        .tlabel { height:56px; display:flex; align-items:flex-start; justify-content:flex-end; padding-right:8px; font-size:10px; color:var(--text-muted); position:relative; top:-7px; }
         .tgrid-dcol { flex:1; min-width:0; border-left:1px solid var(--border); position:relative; cursor:pointer; }
         .tgrid-dcol:hover { background:rgba(108,99,255,.018); }
         .tgrid-dcol.today-dcol { background:rgba(255,251,235,.4); }
@@ -275,7 +275,7 @@
         <div class="view-switcher">
             <button class="view-btn" data-view="month" onclick="setView('month')">Месяц</button>
             <button class="view-btn" data-view="week" onclick="setView('week')">Неделя</button>
-            <button class="view-btn" data-view="day" onclick="setView('день')">День</button>
+            <button class="view-btn" data-view="day" onclick="setView('day')">День</button>
         </div>
         <div class="search-wrap">
             <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
@@ -350,8 +350,10 @@ const DOWS_SHORT = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
 const DOWS_FULL  = ['Воскресенье','Понедельник','Вторник','Среда','Четверг','Пятница','Суббота'];
 const DAY_NAMES  = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
 
-// Time grid settings
-const GRID_START = 8, GRID_END = 22, HOUR_H = 56;
+// Time grid settings. GRID_START/END are the *current* visible bounds and may
+// expand per-render to keep early/late events visible (see computeGridBounds).
+const DEFAULT_START = 8, DEFAULT_END = 22, HOUR_H = 56;
+let GRID_START = DEFAULT_START, GRID_END = DEFAULT_END;
 
 // ── Parsing dicts ──────────────────────────────────────────
 const COLOR_WORDS = {
@@ -409,6 +411,7 @@ let grpColor   = COLORS[5];
 let ePalette   = {};
 let smartParsed = null;
 let prefillTime = null;
+let hiddenGroups = new Set();   // groupId-ы, скрытые фильтром (только для календаря)
 
 function saveNotes()  { localStorage.setItem(NOTES_K,  JSON.stringify(notes)); }
 function saveGroups() { localStorage.setItem(GROUPS_K, JSON.stringify(groups)); }
@@ -457,6 +460,10 @@ function normalizeNote(n) {
     };
 }
 function getNotesForDay(y,m,d) { return (notes[dk(y,m,d)] || []).map(normalizeNote); }
+// Notes shown in the calendar grids respect the group filter; notes without a
+// group are always visible. The side panel and search ignore this filter.
+function isGroupVisible(gid) { return !gid || !hiddenGroups.has(gid); }
+function visibleNotesForDay(y,m,d) { return getNotesForDay(y,m,d).filter(n=>isGroupVisible(n.groupId)); }
 
 // ── Time utils ─────────────────────────────────────────────
 function timeToMin(t) { if(!t) return 0; const[h,m]=t.split(':').map(Number); return h*60+m; }
@@ -549,7 +556,7 @@ function buildMonthCell(y,m,d,other,today2,isSel) {
 
     const num=document.createElement('div'); num.className='day-num'; num.textContent=d; cell.appendChild(num);
 
-    const dn=getNotesForDay(y,m,d);
+    const dn=visibleNotesForDay(y,m,d);
     const timed=dn.filter(n=>!n.isAllDay), allday=dn.filter(n=>n.isAllDay);
     const all=[...timed,...allday];
     const maxChips=3;
@@ -601,12 +608,14 @@ function makeColHdrs(days) {
     const gut=document.createElement('div'); gut.className='tgutter'; wrap.appendChild(gut);
     days.forEach(d=>{
         const col=document.createElement('div');
+        const isSel=sel&&isSameDay(d,new Date(sel.year,sel.month,sel.day));
         let cls='tgrid-dcol-hdr';
         if(isToday(d)) cls+=' today-col';
-        if(sel&&isSameDay(d,new Date(sel.year,sel.month,sel.day))) cls+=' sel-col';
+        if(isSel) cls+=' sel-col';
         col.className=cls;
+        col.dataset.dkey=dk(d.getFullYear(),d.getMonth(),d.getDate());
         col.innerHTML=`<div class="dcol-name">${DAY_NAMES[(d.getDay()+6)%7]}</div>
-            <div class="dcol-num${isToday(d)?' today':''}">${d.getDate()}</div>`;
+            <div class="dcol-num${isToday(d)?' today':''}${isSel?' sel':''}">${d.getDate()}</div>`;
         col.onclick=()=>selectDay(d.getFullYear(),d.getMonth(),d.getDate());
         wrap.appendChild(col);
     });
@@ -619,7 +628,7 @@ function makeAlldayStrip(days) {
     const gut=document.createElement('div'); gut.className='allday-gutter'; gut.textContent='Весь день'; wrap.appendChild(gut);
     days.forEach(d=>{
         const col=document.createElement('div'); col.className='allday-col';
-        const dn=getNotesForDay(d.getFullYear(),d.getMonth(),d.getDate());
+        const dn=visibleNotesForDay(d.getFullYear(),d.getMonth(),d.getDate());
         dn.filter(n=>n.isAllDay).forEach(n=>{
             const chip=document.createElement('div'); chip.className='allday-chip';
             chip.style.background=n.color||COLORS[5]; chip.textContent=n.title||n.text||'';
@@ -632,7 +641,21 @@ function makeAlldayStrip(days) {
 }
 
 // ── Time grid ──────────────────────────────────────────────
+// Default window 08:00–22:00, but expanded so events outside it stay visible.
+function computeGridBounds(days) {
+    let start=DEFAULT_START, end=DEFAULT_END;
+    days.forEach(d=>{
+        visibleNotesForDay(d.getFullYear(),d.getMonth(),d.getDate())
+            .filter(n=>!n.isAllDay&&n.startTime).forEach(n=>{
+                const st=timeToMin(n.startTime), en=n.endTime?timeToMin(n.endTime):st+60;
+                start=Math.min(start,Math.floor(st/60));
+                end  =Math.max(end,Math.ceil(en/60));
+            });
+    });
+    return { start:Math.max(0,start), end:Math.min(24,end) };
+}
 function makeTimeGrid(days) {
+    const b=computeGridBounds(days); GRID_START=b.start; GRID_END=b.end;
     const scroll=document.createElement('div'); scroll.className='tgrid-scroll';
     const inner=document.createElement('div'); inner.className='tgrid-inner';
     inner.style.minHeight=((GRID_END-GRID_START)*HOUR_H)+'px';
@@ -673,7 +696,7 @@ function makeTimeGrid(days) {
         };
 
         // Events
-        const dn=getNotesForDay(d.getFullYear(),d.getMonth(),d.getDate());
+        const dn=visibleNotesForDay(d.getFullYear(),d.getMonth(),d.getDate());
         const timed=dn.filter(n=>!n.isAllDay&&n.startTime);
         const laid=layoutEvents(timed);
         laid.forEach(n=>{
@@ -736,9 +759,12 @@ function selectDay(y,m,d,preTime=null) {
 }
 
 function renderColHdrHighlight() {
+    const selKey=sel?dk(sel.year,sel.month,sel.day):null;
     document.querySelectorAll('.tgrid-dcol-hdr').forEach(el=>{
-        const d=parseInt(el.querySelector('.dcol-num')?.textContent);
-        // simple highlight update without full re-render
+        const isSel=el.dataset.dkey===selKey;
+        el.classList.toggle('sel-col',isSel);
+        const num=el.querySelector('.dcol-num');
+        if(num) num.classList.toggle('sel',isSel);
     });
 }
 
@@ -891,6 +917,7 @@ function addNote(key) {
     const isAD=document.getElementById('addAD').checked;
     const st=isAD?null:(document.getElementById('addSt').value||null);
     const en=isAD?null:(document.getElementById('addEn').value||null);
+    if(!isAD&&st&&en&&timeToMin(en)<=timeToMin(st)){alert('Время окончания должно быть позже времени начала.');return;}
     const gid=document.getElementById('addGs').value;
 
     if(!notes[key]) notes[key]=[];
@@ -914,6 +941,7 @@ function saveEdit(nid,key) {
     const isAD=document.getElementById('ead-'+nid).checked;
     const st=isAD?null:(document.getElementById('est-'+nid).value||null);
     const en=isAD?null:(document.getElementById('een-'+nid).value||null);
+    if(!isAD&&st&&en&&timeToMin(en)<=timeToMin(st)){alert('Время окончания должно быть позже времени начала.');return;}
     const gid=document.getElementById('egs-'+nid).value;
     const raw=(notes[key]||[]).find(n=>n.id===nid);
     if(raw){raw.title=title;raw.text=title;raw.description=desc;raw.color=ePalette[nid]||raw.color;
@@ -943,6 +971,8 @@ function handleSearch(q){clearTimeout(srTimer);srTimer=setTimeout(()=>doSearch(q
 function doSearch(q) {
     const el=document.getElementById('searchResults');
     if(!q){el.classList.remove('on');el.innerHTML='';return;}
+    // Поиск не должен скрывать результаты из-за фильтра групп — сбрасываем его.
+    if(hiddenGroups.size){hiddenGroups.clear();render();if(sel)renderPanel();}
     const low=q.toLowerCase(), hits=[];
     Object.entries(notes).forEach(([key,dn])=>{
         const[y,m,d]=key.split('-').map(Number);
@@ -962,7 +992,7 @@ function doSearch(q) {
         const item=document.createElement('div'); item.className='sr-item'; item.style.borderLeftColor=n.color||COLORS[5];
         item.innerHTML=`<div class="sr-date">${n.startTime&&!n.isAllDay?`<span class="note-time-chip" style="margin-right:6px">⏰ ${n.startTime}</span>`:''}${d} ${MONTHS_GEN[m]} ${y}${grp?`<span class="grp-badge" style="background:${grp.color};margin-left:6px">${esc(grp.name)}</span>`:''}</div>
             <div class="sr-text">${hilite(esc(n.title||''),q)}</div>`;
-        item.onclick=()=>{cur=new Date(y,m,1);document.getElementById('searchInput').value='';el.classList.remove('on');el.innerHTML='';render();selectDay(y,m,d);};
+        item.onclick=()=>{cur=new Date(y,m,d);document.getElementById('searchInput').value='';el.classList.remove('on');el.innerHTML='';render();selectDay(y,m,d);};
         el.appendChild(item);
     });
 }
@@ -976,10 +1006,16 @@ function renderGrpList(){
     const list=document.getElementById('grpList'); list.innerHTML='';
     if(!groups.length){list.innerHTML='<div class="sr-empty">Группы не созданы</div>';return;}
     groups.forEach(g=>{
+        const hidden=hiddenGroups.has(g.id);
         const item=document.createElement('div'); item.className='grp-item';
-        item.innerHTML=`<div class="grp-circ" style="background:${g.color}"></div><div class="grp-name-el">${esc(g.name)}</div><button class="btn-icon" onclick="delGroup('${g.id}')">🗑️</button>`;
+        item.style.opacity=hidden?'.5':'';
+        item.innerHTML=`<div class="grp-circ" style="background:${g.color}"></div><div class="grp-name-el">${esc(g.name)}</div><button class="btn-icon" title="${hidden?'Показать в календаре':'Скрыть из календаря'}" onclick="toggleGroupVis('${g.id}')">${hidden?'🙈':'👁'}</button><button class="btn-icon" onclick="delGroup('${g.id}')">🗑️</button>`;
         list.appendChild(item);
     });
+}
+function toggleGroupVis(id){
+    if(hiddenGroups.has(id)) hiddenGroups.delete(id); else hiddenGroups.add(id);
+    renderGrpList(); render(); if(sel) renderPanel();
 }
 function addGroup(){const name=(document.getElementById('newGrpName').value||'').trim();if(!name)return;groups.push({id:uid(),name,color:grpColor});saveGroups();document.getElementById('newGrpName').value='';renderGrpList();}
 function delGroup(id){groups=groups.filter(g=>g.id!==id);Object.values(notes).forEach(dn=>dn.forEach(n=>{if(n.groupId===id)n.groupId=null;}));saveNotes();saveGroups();renderGrpList();if(sel)renderPanel();}
@@ -1012,7 +1048,10 @@ function makeChecklistSection(key) {
 function makeClEmptyPrompt(key){const wrap=document.createElement('div');wrap.className='cl-empty-prompt';const label=document.createElement('span');label.textContent='✚ Создать первый пункт';const inp=document.createElement('input');inp.className='cl-input';inp.placeholder='Первый пункт…';inp.style.display='none';inp.onkeydown=e=>{if(e.key==='Enter'){const text=inp.value.trim();if(!text)return;if(!clists[key])clists[key]=[];const cl={id:uid(),created:Date.now(),items:[{id:uid(),text,done:false,starred:false}]};clists[key].push(cl);saveClists();renderPanel();}else if(e.key==='Escape'){inp.style.display='none';label.style.display='';}};inp.onblur=()=>{if(!inp.value.trim()){inp.style.display='none';label.style.display='';}};wrap.onclick=()=>{label.style.display='none';inp.style.display='';inp.focus();};wrap.appendChild(label);wrap.appendChild(inp);return wrap;}
 function makeClCard(cl,key){const card=document.createElement('div');card.className='cl-card';const list=document.createElement('div');list.className='cl-items-list';cl.items.forEach(item=>list.appendChild(makeClItem(item,cl.id,key)));card.appendChild(list);const addRow=document.createElement('div');addRow.className='cl-add-row';const addInp=document.createElement('input');addInp.className='cl-input';addInp.id='cladd-'+cl.id;addInp.placeholder=cl.items.length?'Добавить пункт…':'Первый пункт…';addInp.onkeydown=e=>{if(e.key==='Enter')clAddItem(cl.id,key,addInp.value);};addRow.appendChild(addInp);card.appendChild(addRow);if(clIsAllDone(cl)){const banner=document.createElement('div');banner.className='cl-done-banner';const del=document.createElement('button');del.className='btn btn-ghost';del.textContent='Удалить';del.onclick=()=>clDelete(cl.id,key);const newBtn=document.createElement('button');newBtn.className='btn btn-primary';newBtn.textContent='Новый чеклист';newBtn.onclick=()=>clCreateNew(key);banner.innerHTML='<span>🎉 Все выполнено!</span>';banner.appendChild(del);banner.appendChild(newBtn);card.appendChild(banner);}return card;}
 function makeClItem(item,clId,key){const row=document.createElement('div');row.className='cl-item'+(item.starred?' starred':'');const star=document.createElement('button');star.className='cl-star'+(item.starred?' on':'');star.textContent=item.starred?'★':'☆';star.onclick=()=>clToggleStar(clId,item.id,key);const chk=document.createElement('input');chk.type='checkbox';chk.className='cl-check';chk.checked=item.done;chk.onchange=()=>clToggleDone(clId,item.id,key);const txt=document.createElement('span');txt.className='cl-item-text'+(item.done?' done':'');txt.textContent=item.text;const del=document.createElement('button');del.className='cl-item-del';del.textContent='✕';del.onclick=()=>clDelItem(clId,item.id,key);row.appendChild(star);row.appendChild(chk);row.appendChild(txt);row.appendChild(del);return row;}
-function makeClCollapsed(cl,key){const dc=cl.items.filter(i=>i.done).length,tot=cl.items.length,isExp=!!clExpanded[cl.id];const wrap=document.createElement('div');wrap.className='cl-collapsed';const hdr=document.createElement('div');hdr.className='cl-coll-hdr';hdr.innerHTML=`<span class="cl-coll-status">${clIsAllDone(cl)?'✅':'📋'}</span><span class="cl-coll-info">${dc}/${tot} выполнено</span><span class="cl-coll-chevron${isExp?' open':''}" id="clchev-${cl.id}">▸</span>`;hdr.onclick=()=>clToggleExpand(cl.id);const body=document.createElement('div');body.className='cl-coll-body'+(isExp?' open':'');body.id='clcollbody-'+cl.id;cl.items.forEach(item=>{const row=document.createElement('div');row.className='cl-coll-item';const chk=document.createElement('input');chk.type='checkbox';chk.className='cl-coll-check';chk.checked=item.done;chk.disabled=true;const starEl=document.createElement('span');starEl.className='cl-coll-star';starEl.textContent=item.starred?'★':'';const txtEl=document.createElement('span');txtEl.className='cl-coll-text'+(item.done?' done':'');txtEl.textContent=item.text;row.appendChild(chk);row.appendChild(starEl);row.appendChild(txtEl);body.appendChild(row);});wrap.appendChild(hdr);wrap.appendChild(body);return wrap;}
+function makeClCollapsed(cl,key){const dc=cl.items.filter(i=>i.done).length,tot=cl.items.length,isExp=!!clExpanded[cl.id];const wrap=document.createElement('div');wrap.className='cl-collapsed';const hdr=document.createElement('div');hdr.className='cl-coll-hdr';hdr.innerHTML=`<span class="cl-coll-status">${clIsAllDone(cl)?'✅':'📋'}</span><span class="cl-coll-info">${dc}/${tot} выполнено</span><span class="cl-coll-chevron${isExp?' open':''}" id="clchev-${cl.id}">▸</span>`;hdr.onclick=()=>clToggleExpand(cl.id);const body=document.createElement('div');body.className='cl-coll-body'+(isExp?' open':'');body.id='clcollbody-'+cl.id;
+    // Раскрытый выполненный чеклист остаётся полностью интерактивным:
+    // можно снять галочку, удалить пункт, добавить пункт или удалить весь чеклист.
+    body.appendChild(makeClCard(cl,key));wrap.appendChild(hdr);wrap.appendChild(body);return wrap;}
 function makeNewClBtn(key){const btn=document.createElement('button');btn.className='btn-new-cl';btn.innerHTML='＋ Новый чеклист';btn.onclick=()=>clCreateNew(key);return btn;}
 
 // ── Smart note parser ──────────────────────────────────────
@@ -1020,7 +1059,11 @@ function parseMonthName(s){const v=MONTH_MAP[(s||'').toLowerCase().trim()];retur
 function nextWeekday(targetDow){const today=new Date();let diff=targetDow-today.getDay();if(diff<=0)diff+=7;const d=new Date(today);d.setDate(today.getDate()+diff);d.setHours(0,0,0,0);return d;}
 function parseDotDate(s){const m1=s.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);if(m1)return new Date(+m1[3],+m1[2]-1,+m1[1]);const m2=s.match(/^(\d{1,2})\.(\d{1,2})$/);if(m2){const today=new Date();let d=new Date(today.getFullYear(),+m2[2]-1,+m2[1]);if(d<=today)d=new Date(today.getFullYear()+1,+m2[2]-1,+m2[1]);return d;}return null;}
 function parseTagDate(s){const lower=s.toLowerCase().trim();const re=new RegExp('^(\\d{1,2}|[а-яё]+(?:\\s+[а-яё]+)?)\\s+('+MONTH_RE+')$','i');const m=lower.match(re);if(!m)return null;const dayStr=m[1].trim();const day=/^\d+$/.test(dayStr)?parseInt(dayStr):ORDINALS[dayStr];if(!day||day<1||day>31)return null;const mon=parseMonthName(m[2]);if(mon===null)return null;const today=new Date();let d=new Date(today.getFullYear(),mon,day);if(d<=today)d=new Date(today.getFullYear()+1,mon,day);d.setHours(0,0,0,0);return d;}
-function parseDateFromText(text){const lower=text.toLowerCase();if(/\bсегодня\b/.test(lower)){const d=new Date();d.setHours(0,0,0,0);return d;}if(/\bзавтра\b/.test(lower)){const d=new Date();d.setDate(d.getDate()+1);d.setHours(0,0,0,0);return d;}if(/\bпослезавтра\b/.test(lower)){const d=new Date();d.setDate(d.getDate()+2);d.setHours(0,0,0,0);return d;}const re1=new RegExp('(\\d{1,2})\\s+('+MONTH_RE+')(?:\\s+(\\d{4}))?','i');const m1=lower.match(re1);if(m1){const day=parseInt(m1[1]),mon=parseMonthName(m1[2]);if(mon!==null){const year=m1[3]?parseInt(m1[3]):new Date().getFullYear();let d=new Date(year,mon,day);if(!m1[3]&&d<=new Date())d=new Date(year+1,mon,day);d.setHours(0,0,0,0);return d;}}for(const[word,dow]of Object.entries(DOW_MAP)){if(new RegExp('\\b'+word+'\\b').test(lower))return nextWeekday(dow);}return null;}
+// Cyrillic-safe word boundary: JS \b only knows ASCII word chars, so it
+// breaks on кириллица. We require a non-letter/non-digit on each side instead.
+function reWord(w){return new RegExp('(?:^|[^0-9a-zа-яё])'+w+'(?![0-9a-zа-яё])','i');}
+function hasWord(text,w){return reWord(w).test(text);}
+function parseDateFromText(text){const lower=text.toLowerCase();if(hasWord(lower,'сегодня')){const d=new Date();d.setHours(0,0,0,0);return d;}if(hasWord(lower,'послезавтра')){const d=new Date();d.setDate(d.getDate()+2);d.setHours(0,0,0,0);return d;}if(hasWord(lower,'завтра')){const d=new Date();d.setDate(d.getDate()+1);d.setHours(0,0,0,0);return d;}const re1=new RegExp('(\\d{1,2})\\s+('+MONTH_RE+')(?:\\s+(\\d{4}))?','i');const m1=lower.match(re1);if(m1){const day=parseInt(m1[1]),mon=parseMonthName(m1[2]);if(mon!==null){const year=m1[3]?parseInt(m1[3]):new Date().getFullYear();let d=new Date(year,mon,day);if(!m1[3]&&d<=new Date())d=new Date(year+1,mon,day);d.setHours(0,0,0,0);return d;}}for(const[word,dow]of Object.entries(DOW_MAP)){if(hasWord(lower,word))return nextWeekday(dow);}return null;}
 function extractHashtags(text){const results=[],used=new Array(text.length).fill(false);const re1=new RegExp('#(\\d{1,2}|[а-яёА-ЯЁ]+(?:\\s+[а-яёА-ЯЁ]+)?)\\s+('+MONTH_RE+')(?=\\s|$|,|\\.|!)','gi');let m;while((m=re1.exec(text))!==null){const raw=m[0],val=m[1].trim()+' '+m[2];results.push({raw,val});for(let i=m.index;i<m.index+raw.length;i++)used[i]=true;}const re2=/#([а-яёА-ЯЁa-zA-Z0-9.:_-]+)/g;while((m=re2.exec(text))!==null){if(!used[m.index])results.push({raw:m[0],val:m[1]});}return results;}
 
 const ALLDAY_WORDS=new Set(['allday','all-day','весьдень','весь-день','целыйдень','неделю','week','наделю','на-неделю']);
@@ -1042,7 +1085,7 @@ function parseSmartNote(rawText){
     let clean=rawText;
     [...used].sort((a,b)=>b.length-a.length).forEach(raw=>{clean=clean.split(raw).join('');});
     clean=clean.replace(/[ \t]{2,}/g,' ').replace(/\n{3,}/g,'\n\n').trim();
-    if(!pTime&&!pIsAllDay){const t1=clean.match(/\bв\s+(\d{1,2}:\d{2})\b/i);if(t1){pTime=t1[1].replace(/^(\d):/,'0$1:');}else{const t2=clean.match(/\bв\s+(\d{1,2})\s+час/i);if(t2)pTime=t2[1].padStart(2,'0')+':00';else{const t3=clean.match(/\bв\s+(\d{1,2})\s+утра?\b/i);if(t3)pTime=t3[1].padStart(2,'0')+':00';else{const t4=clean.match(/\bв\s+(\d{1,2})\s+вечера?\b/i);if(t4){const h=parseInt(t4[1]);pTime=(h<12?h+12:h).toString().padStart(2,'0')+':00';}}}}}
+    if(!pTime&&!pIsAllDay){const lc=clean.toLowerCase();let t;if(t=lc.match(/(?:^|[^а-яё])в\s+(\d{1,2}:\d{2})/)){pTime=t[1].replace(/^(\d):/,'0$1:');}else if(t=lc.match(/(?:^|[^а-яё])в\s+(\d{1,2})\s+час/)){pTime=t[1].padStart(2,'0')+':00';}else if(t=lc.match(/(?:^|[^а-яё])в\s+(\d{1,2})\s+утра?/)){pTime=t[1].padStart(2,'0')+':00';}else if(t=lc.match(/(?:^|[^а-яё])в\s+(\d{1,2})\s+вечера?/)){const h=parseInt(t[1]);pTime=(h<12?h+12:h).toString().padStart(2,'0')+':00';}}
     if(!pDate)pDate=parseDateFromText(clean);
     if(!pDate){pDate=new Date();pDate.setHours(0,0,0,0);}
     if(pTime)pIsAllDay=false;
@@ -1075,7 +1118,7 @@ function createSmartNote(){
     const key=dk(y,m,day);
     if(!notes[key])notes[key]=[];
     notes[key].push({id:uid(),title:noteText,text:noteText,description:'',color:smartParsed.color,groupId:smartParsed.groupId||null,tags:[],startTime:smartParsed.isAllDay?null:smartParsed.time||null,endTime:null,isAllDay:smartParsed.isAllDay||!smartParsed.time,createdAt:Date.now(),updatedAt:Date.now()});
-    saveNotes();closeSmart();cur=new Date(y,m,1);render();selectDay(y,m,day);
+    saveNotes();closeSmart();cur=new Date(y,m,day);render();selectDay(y,m,day);
 }
 
 // ── Keyboard ───────────────────────────────────────────────
