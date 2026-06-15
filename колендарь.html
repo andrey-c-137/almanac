@@ -24,7 +24,7 @@
             --r: 12px;
             --r-sm: 7px;
             --shadow: 0 2px 12px rgba(108,99,255,.12);
-            --shadow-lg: 0 8px 32px rgba(108,99,255,.2);
+            --shadow-lg: 0 8px 32px rgba(101, 95, 210, 0.2);
             --ease: .18s ease;
         }
         * { margin:0; padding:0; box-sizing:border-box; }
@@ -352,6 +352,100 @@
         }
         .smart-ctrl { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
 
+        /* ── Checklist ── */
+        .cl-divider { height: 1px; background: var(--border); margin: 10px 0 8px; }
+        .cl-section { display: flex; flex-direction: column; gap: 7px; }
+        .cl-section-hdr {
+            font-size: 11px; font-weight: 800; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: .06em;
+        }
+        .cl-empty-prompt {
+            border: 1.5px dashed var(--border); border-radius: var(--r-sm);
+            padding: 11px 14px; cursor: pointer;
+            color: var(--text-muted); font-size: 13px;
+            transition: all var(--ease); display: flex; align-items: center; gap: 8px;
+        }
+        .cl-empty-prompt:hover { border-color: var(--primary); color: var(--primary); background: var(--selected-bg); }
+        .cl-empty-inp-row { padding: 2px 0; }
+        .cl-card {
+            background: var(--surface-2); border-radius: var(--r-sm);
+            border: 1.5px solid var(--border); overflow: hidden;
+        }
+        .cl-items-list { display: flex; flex-direction: column; }
+        .cl-item {
+            display: flex; align-items: center; gap: 6px;
+            padding: 7px 10px; border-bottom: 1px solid var(--border);
+            transition: background var(--ease);
+        }
+        .cl-item:last-child { border-bottom: none; }
+        .cl-item:hover { background: var(--surface); }
+        .cl-item.starred { background: rgba(251,191,36,.07); }
+        .cl-star {
+            width: 20px; height: 20px; border: none; background: transparent;
+            cursor: pointer; font-size: 14px; padding: 0; flex-shrink: 0;
+            color: var(--border); transition: color .12s, transform .12s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .cl-star:hover { transform: scale(1.2); color: #FBBF24; }
+        .cl-star.on { color: #FBBF24; }
+        .cl-check { width: 15px; height: 15px; cursor: pointer; flex-shrink: 0; accent-color: var(--primary); }
+        .cl-item-text { flex: 1; font-size: 13px; color: var(--text); line-height: 1.4; word-break: break-word; }
+        .cl-item-text.done { text-decoration: line-through; color: var(--text-muted); }
+        .cl-item-del {
+            width: 18px; height: 18px; border: none; background: transparent;
+            cursor: pointer; font-size: 11px; color: var(--text-muted);
+            opacity: 0; transition: opacity var(--ease), color var(--ease);
+            flex-shrink: 0; display: flex; align-items: center; justify-content: center; border-radius: 50%;
+        }
+        .cl-item:hover .cl-item-del { opacity: 1; }
+        .cl-item-del:hover { color: var(--danger); background: rgba(255,107,107,.12); }
+        .cl-add-row { padding: 6px 10px; border-top: 1px solid var(--border); }
+        .cl-input {
+            width: 100%; border: none; background: transparent;
+            font-family: inherit; font-size: 13px; color: var(--text); outline: none; padding: 2px 0;
+        }
+        .cl-input::placeholder { color: var(--text-muted); }
+        .cl-done-banner {
+            display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+            padding: 9px 12px; background: rgba(29,209,161,.1);
+            border-top: 1px solid rgba(29,209,161,.3);
+            font-size: 13px; font-weight: 600; color: #0d9e78;
+        }
+        .cl-done-banner .btn { padding: 4px 10px; font-size: 11px; }
+        .btn-new-cl {
+            width: 100%; padding: 8px;
+            background: transparent; border: 1.5px dashed var(--border);
+            border-radius: var(--r-sm); color: var(--text-muted);
+            cursor: pointer; font-size: 12px; transition: all var(--ease);
+            display: flex; align-items: center; justify-content: center; gap: 4px;
+        }
+        .btn-new-cl:hover { border-color: var(--primary); color: var(--primary); background: var(--selected-bg); }
+        .cl-sub-hdr {
+            font-size: 10px; font-weight: 700; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: .05em; margin-top: 2px;
+        }
+        .cl-collapsed { background: var(--surface-2); border-radius: var(--r-sm); border: 1.5px solid var(--border); overflow: hidden; }
+        .cl-coll-hdr {
+            display: flex; align-items: center; gap: 8px;
+            padding: 9px 12px; cursor: pointer; transition: background var(--ease);
+        }
+        .cl-coll-hdr:hover { background: var(--surface); }
+        .cl-coll-status { font-size: 13px; flex-shrink: 0; }
+        .cl-coll-info { flex: 1; font-size: 12px; color: var(--text-muted); }
+        .cl-coll-chevron { font-size: 11px; color: var(--text-muted); transition: transform .15s; display: inline-block; }
+        .cl-coll-chevron.open { transform: rotate(90deg); }
+        .cl-coll-body { border-top: 1px solid var(--border); display: none; }
+        .cl-coll-body.open { display: block; }
+        .cl-coll-item {
+            display: flex; align-items: center; gap: 7px;
+            padding: 6px 12px; border-bottom: 1px solid var(--border); font-size: 12px;
+        }
+        .cl-coll-item:last-child { border-bottom: none; }
+        .cl-coll-star { color: #FBBF24; font-size: 11px; flex-shrink: 0; }
+        .cl-coll-check { width: 13px; height: 13px; flex-shrink: 0; accent-color: var(--primary); }
+        .cl-coll-text { color: var(--text); }
+        .cl-coll-text.done { text-decoration: line-through; color: var(--text-muted); }
+
         @media (max-width: 700px) {
             .main { flex-direction: column; }
             .side-panel.open { width: 100%; }
@@ -445,6 +539,7 @@
 // ── Constants ──────────────────────────────────────────────
 const NOTES_K  = 'calpp_notes2';
 const GROUPS_K = 'calpp_groups2';
+const CLISTS_K = 'calpp_clists';
 
 const COLORS = ['#FF6B6B','#FF9F43','#FECA57','#1DD1A1','#54A0FF','#748FFC','#C56CF0','#FD79A8','#A8A8B3'];
 
@@ -511,6 +606,8 @@ const MONTH_RE = 'январ[яьеи]?|феврал[яьеи]?|март[аеи]
 // ── State ──────────────────────────────────────────────────
 let notes    = JSON.parse(localStorage.getItem(NOTES_K))  || {};
 let groups   = JSON.parse(localStorage.getItem(GROUPS_K)) || JSON.parse(JSON.stringify(DEFAULT_GROUPS));
+let clists   = JSON.parse(localStorage.getItem(CLISTS_K)) || {};
+let clExpanded = {};
 let cur      = new Date();
 let sel      = null;
 let addColor = COLORS[5];
@@ -520,6 +617,7 @@ let smartParsed = null;
 
 function saveNotes()  { localStorage.setItem(NOTES_K,  JSON.stringify(notes));  }
 function saveGroups() { localStorage.setItem(GROUPS_K, JSON.stringify(groups)); }
+function saveClists() { localStorage.setItem(CLISTS_K, JSON.stringify(clists)); }
 function uid()        { return Math.random().toString(36).slice(2)+Date.now().toString(36); }
 function dk(y,m,d)   { return `${y}-${m}-${d}`; }
 function esc(s)       { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
@@ -648,6 +746,7 @@ function renderPanel() {
     body.appendChild(addBtn);
 
     body.appendChild(makeAddForm(key));
+    body.appendChild(makeChecklistSection(key));
 }
 
 function makeNoteCard(note, key) {
@@ -1127,6 +1226,251 @@ function createSmartNote() {
     cur = new Date(y, m, 1);
     renderCalendar();
     selectDay(y, m, day);
+}
+
+// ── Checklists ─────────────────────────────────────────────
+function clGetDay(key) { return clists[key] || []; }
+function clIsAllDone(cl) { return cl.items.length > 0 && cl.items.every(i => i.done); }
+
+function clCreateNew(key) {
+    if (!clists[key]) clists[key] = [];
+    const cl = { id: uid(), created: Date.now(), items: [] };
+    clists[key].push(cl);
+    saveClists(); renderPanel();
+    requestAnimationFrame(() => { const i = document.getElementById('cladd-' + cl.id); if (i) i.focus(); });
+}
+
+function clDelete(clId, key) {
+    if (!clists[key]) return;
+    clists[key] = clists[key].filter(c => c.id !== clId);
+    if (!clists[key].length) delete clists[key];
+    saveClists(); renderPanel();
+}
+
+function clAddItem(clId, key, text) {
+    text = (text || '').trim();
+    if (!text) return false;
+    const cl = (clists[key] || []).find(c => c.id === clId);
+    if (!cl) return false;
+    cl.items.push({ id: uid(), text, done: false, starred: false });
+    saveClists(); renderPanel();
+    requestAnimationFrame(() => { const i = document.getElementById('cladd-' + clId); if (i) i.focus(); });
+    return true;
+}
+
+function clToggleDone(clId, itemId, key) {
+    const cl = (clists[key] || []).find(c => c.id === clId);
+    const item = cl && cl.items.find(i => i.id === itemId);
+    if (item) { item.done = !item.done; saveClists(); renderPanel(); }
+}
+
+function clToggleStar(clId, itemId, key) {
+    const cl = (clists[key] || []).find(c => c.id === clId);
+    if (!cl) return;
+    const item = cl.items.find(i => i.id === itemId);
+    if (!item) return;
+    item.starred = !item.starred;
+    if (item.starred) {
+        const idx = cl.items.indexOf(item);
+        cl.items.splice(idx, 1);
+        const lastStar = cl.items.reduce((acc, it, i) => it.starred ? i : acc, -1);
+        cl.items.splice(lastStar + 1, 0, item);
+    }
+    saveClists(); renderPanel();
+}
+
+function clDelItem(clId, itemId, key) {
+    const cl = (clists[key] || []).find(c => c.id === clId);
+    if (!cl) return;
+    cl.items = cl.items.filter(i => i.id !== itemId);
+    saveClists(); renderPanel();
+}
+
+function clToggleExpand(clId) {
+    clExpanded[clId] = !clExpanded[clId];
+    const body = document.getElementById('clcollbody-' + clId);
+    const chev = document.getElementById('clchev-' + clId);
+    if (body) body.classList.toggle('open', clExpanded[clId]);
+    if (chev) chev.classList.toggle('open', clExpanded[clId]);
+}
+
+// ── Checklist render ───────────────────────────────────────
+function makeChecklistSection(key) {
+    const [y, m, d] = key.split('-').map(Number);
+    const isPast = new Date(y, m, d) < new Date(new Date().toDateString());
+
+    const allCls     = clGetDay(key);
+    const activeCls  = isPast ? [] : allCls.filter(cl => !clIsAllDone(cl));
+    const collCls    = isPast ? allCls : allCls.filter(cl => clIsAllDone(cl));
+
+    const wrap = document.createElement('div');
+
+    const divider = document.createElement('div');
+    divider.className = 'cl-divider';
+    wrap.appendChild(divider);
+
+    const section = document.createElement('div');
+    section.className = 'cl-section';
+
+    const hdr = document.createElement('div');
+    hdr.className = 'cl-section-hdr';
+    hdr.textContent = '☑ Чеклист';
+    section.appendChild(hdr);
+
+    if (allCls.length === 0) {
+        section.appendChild(makeClEmptyPrompt(key));
+    } else {
+        activeCls.forEach(cl => section.appendChild(makeClCard(cl, key)));
+        if (!isPast) section.appendChild(makeNewClBtn(key));
+        if (collCls.length) {
+            const sh = document.createElement('div');
+            sh.className = 'cl-sub-hdr';
+            sh.textContent = isPast ? 'Все чеклисты' : 'Выполненные';
+            section.appendChild(sh);
+            collCls.forEach(cl => section.appendChild(makeClCollapsed(cl, key)));
+        }
+        if (isPast) section.appendChild(makeNewClBtn(key));
+    }
+
+    wrap.appendChild(section);
+    return wrap;
+}
+
+function makeClEmptyPrompt(key) {
+    const wrap = document.createElement('div');
+    wrap.className = 'cl-empty-prompt';
+
+    const label = document.createElement('span');
+    label.textContent = '✚ Создать первый пункт';
+
+    const inp = document.createElement('input');
+    inp.className = 'cl-input cl-empty-inp-row';
+    inp.placeholder = 'Первый пункт…';
+    inp.style.display = 'none';
+    inp.onkeydown = e => {
+        if (e.key === 'Enter') {
+            const text = inp.value.trim();
+            if (!text) return;
+            if (!clists[key]) clists[key] = [];
+            const cl = { id: uid(), created: Date.now(), items: [{ id: uid(), text, done: false, starred: false }] };
+            clists[key].push(cl);
+            saveClists(); renderPanel();
+        } else if (e.key === 'Escape') {
+            inp.style.display = 'none'; label.style.display = '';
+        }
+    };
+    inp.onblur = () => { if (!inp.value.trim()) { inp.style.display = 'none'; label.style.display = ''; } };
+
+    wrap.onclick = () => { label.style.display = 'none'; inp.style.display = ''; inp.focus(); };
+    wrap.appendChild(label);
+    wrap.appendChild(inp);
+    return wrap;
+}
+
+function makeClCard(cl, key) {
+    const card = document.createElement('div');
+    card.className = 'cl-card';
+
+    const list = document.createElement('div');
+    list.className = 'cl-items-list';
+    cl.items.forEach(item => list.appendChild(makeClItem(item, cl.id, key)));
+    card.appendChild(list);
+
+    const addRow = document.createElement('div');
+    addRow.className = 'cl-add-row';
+    const addInp = document.createElement('input');
+    addInp.className = 'cl-input';
+    addInp.id = 'cladd-' + cl.id;
+    addInp.placeholder = cl.items.length ? 'Добавить пункт…' : 'Первый пункт…';
+    addInp.onkeydown = e => { if (e.key === 'Enter') clAddItem(cl.id, key, addInp.value); };
+    addRow.appendChild(addInp);
+    card.appendChild(addRow);
+
+    if (clIsAllDone(cl)) {
+        const banner = document.createElement('div');
+        banner.className = 'cl-done-banner';
+        const del = document.createElement('button');
+        del.className = 'btn btn-ghost'; del.textContent = 'Удалить';
+        del.onclick = () => clDelete(cl.id, key);
+        const newBtn = document.createElement('button');
+        newBtn.className = 'btn btn-primary'; newBtn.textContent = 'Новый чеклист';
+        newBtn.onclick = () => clCreateNew(key);
+        banner.innerHTML = '<span>🎉 Все выполнено!</span>';
+        banner.appendChild(del); banner.appendChild(newBtn);
+        card.appendChild(banner);
+    }
+
+    return card;
+}
+
+function makeClItem(item, clId, key) {
+    const row = document.createElement('div');
+    row.className = 'cl-item' + (item.starred ? ' starred' : '');
+
+    const star = document.createElement('button');
+    star.className = 'cl-star' + (item.starred ? ' on' : '');
+    star.textContent = item.starred ? '★' : '☆';
+    star.title = item.starred ? 'Убрать из избранного' : 'В избранное';
+    star.onclick = () => clToggleStar(clId, item.id, key);
+
+    const chk = document.createElement('input');
+    chk.type = 'checkbox'; chk.className = 'cl-check'; chk.checked = item.done;
+    chk.onchange = () => clToggleDone(clId, item.id, key);
+
+    const txt = document.createElement('span');
+    txt.className = 'cl-item-text' + (item.done ? ' done' : '');
+    txt.textContent = item.text;
+
+    const del = document.createElement('button');
+    del.className = 'cl-item-del'; del.textContent = '✕'; del.title = 'Удалить пункт';
+    del.onclick = () => clDelItem(clId, item.id, key);
+
+    row.appendChild(star); row.appendChild(chk); row.appendChild(txt); row.appendChild(del);
+    return row;
+}
+
+function makeClCollapsed(cl, key) {
+    const doneCount = cl.items.filter(i => i.done).length;
+    const total = cl.items.length;
+    const isExp = !!clExpanded[cl.id];
+
+    const wrap = document.createElement('div');
+    wrap.className = 'cl-collapsed';
+
+    const hdr = document.createElement('div');
+    hdr.className = 'cl-coll-hdr';
+    hdr.innerHTML = `
+        <span class="cl-coll-status">${clIsAllDone(cl) ? '✅' : '📋'}</span>
+        <span class="cl-coll-info">${doneCount}/${total} выполнено</span>
+        <span class="cl-coll-chevron${isExp ? ' open' : ''}" id="clchev-${cl.id}">▸</span>`;
+    hdr.onclick = () => clToggleExpand(cl.id);
+
+    const body = document.createElement('div');
+    body.className = 'cl-coll-body' + (isExp ? ' open' : '');
+    body.id = 'clcollbody-' + cl.id;
+
+    cl.items.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'cl-coll-item';
+        const chk = document.createElement('input');
+        chk.type = 'checkbox'; chk.className = 'cl-coll-check'; chk.checked = item.done; chk.disabled = true;
+        const starEl = document.createElement('span');
+        starEl.className = 'cl-coll-star'; starEl.textContent = item.starred ? '★' : '';
+        const txtEl = document.createElement('span');
+        txtEl.className = 'cl-coll-text' + (item.done ? ' done' : ''); txtEl.textContent = item.text;
+        row.appendChild(chk); row.appendChild(starEl); row.appendChild(txtEl);
+        body.appendChild(row);
+    });
+
+    wrap.appendChild(hdr); wrap.appendChild(body);
+    return wrap;
+}
+
+function makeNewClBtn(key) {
+    const btn = document.createElement('button');
+    btn.className = 'btn-new-cl'; btn.innerHTML = '＋ Новый чеклист';
+    btn.onclick = () => clCreateNew(key);
+    return btn;
 }
 
 // ── Keyboard shortcuts ─────────────────────────────────────
