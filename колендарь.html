@@ -6,503 +6,303 @@
     <title>Календарь++</title>
     <style>
         :root {
-            --primary: #6C63FF;
-            --primary-dark: #5A52D5;
-            --danger: #FF6B6B;
-            --danger-dark: #E55A5A;
-            --bg-grad-a: #667eea;
-            --bg-grad-b: #764ba2;
-            --surface: #FFFFFF;
-            --surface-2: #F6F7FF;
-            --text: #2D2D44;
-            --text-muted: #8889A8;
+            --primary: #6C63FF; --primary-dark: #5A52D5;
+            --danger: #FF6B6B; --danger-dark: #E55A5A;
+            --bg-a: #667eea; --bg-b: #764ba2;
+            --surface: #fff; --surface-2: #F6F7FF;
+            --text: #2D2D44; --text-muted: #8889A8;
             --border: #DDE0F5;
-            --today-bg: #FFFBEB;
-            --today-ring: #FBBF24;
-            --selected-bg: #EEF0FF;
-            --selected-ring: #6C63FF;
-            --r: 12px;
-            --r-sm: 7px;
+            --today-bg: #FFFBEB; --today-ring: #FBBF24;
+            --sel-bg: #EEF0FF; --sel-ring: #6C63FF;
+            --r: 12px; --r-sm: 7px;
             --shadow: 0 2px 12px rgba(108,99,255,.12);
-            --shadow-lg: 0 8px 32px rgba(101, 95, 210, 0.2);
+            --shadow-lg: 0 8px 32px rgba(108,99,255,.18);
             --ease: .18s ease;
         }
         * { margin:0; padding:0; box-sizing:border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, var(--bg-grad-a), var(--bg-grad-b));
-            min-height: 100vh;
-            padding: 20px;
-            color: var(--text);
-        }
-        .app { max-width: 1220px; margin: 0 auto; }
+        body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:linear-gradient(135deg,var(--bg-a),var(--bg-b)); min-height:100vh; padding:20px; color:var(--text); }
+        .app { max-width:1300px; margin:0 auto; }
 
         /* ── Header ── */
-        .header {
-            display: flex; align-items: center; gap: 14px;
-            margin-bottom: 18px; flex-wrap: wrap;
-        }
-        .logo {
-            font-size: 26px; font-weight: 800; color: #fff;
-            text-shadow: 0 2px 8px rgba(0,0,0,.2);
-            white-space: nowrap;
-        }
-        .search-wrap { flex: 1; position: relative; min-width: 180px; }
-        .search-wrap svg {
-            position: absolute; left: 11px; top: 50%;
-            transform: translateY(-50%); pointer-events: none;
-            color: var(--text-muted);
-        }
-        .search-input {
-            width: 100%; padding: 10px 12px 10px 36px;
-            border: none; border-radius: var(--r);
-            background: rgba(255,255,255,.95);
-            font-size: 14px; color: var(--text); outline: none;
-            box-shadow: var(--shadow); transition: box-shadow var(--ease);
-        }
-        .search-input:focus { box-shadow: 0 0 0 3px rgba(108,99,255,.35), var(--shadow); }
-        .search-input::placeholder { color: var(--text-muted); }
-        .btn-hdr {
-            padding: 10px 18px;
-            background: rgba(255,255,255,.18);
-            color: #fff; border: 1.5px solid rgba(255,255,255,.4);
-            border-radius: var(--r); cursor: pointer;
-            font-size: 13px; font-weight: 700;
-            backdrop-filter: blur(4px);
-            transition: background var(--ease);
-            white-space: nowrap;
-        }
-        .btn-hdr:hover { background: rgba(255,255,255,.32); }
-        .btn-hdr.smart { background: rgba(255,220,80,.25); border-color: rgba(255,220,80,.6); }
-        .btn-hdr.smart:hover { background: rgba(255,220,80,.4); }
+        .header { display:flex; align-items:center; gap:12px; margin-bottom:16px; flex-wrap:wrap; }
+        .logo { font-size:24px; font-weight:800; color:#fff; text-shadow:0 2px 8px rgba(0,0,0,.2); white-space:nowrap; }
+        .nav-group { display:flex; align-items:center; gap:6px; }
+        .btn-today { padding:7px 14px; background:rgba(255,255,255,.2); color:#fff; border:1.5px solid rgba(255,255,255,.4); border-radius:var(--r-sm); cursor:pointer; font-size:12px; font-weight:700; transition:background var(--ease); white-space:nowrap; }
+        .btn-today:hover { background:rgba(255,255,255,.35); }
+        .cal-nav { width:32px; height:32px; border:none; border-radius:50%; background:rgba(255,255,255,.2); cursor:pointer; font-size:18px; display:flex; align-items:center; justify-content:center; color:#fff; transition:all var(--ease); }
+        .cal-nav:hover { background:rgba(255,255,255,.35); }
+        .period-title { font-size:16px; font-weight:700; color:#fff; min-width:190px; text-align:center; text-shadow:0 1px 4px rgba(0,0,0,.15); }
+        .view-switcher { display:flex; gap:2px; background:rgba(255,255,255,.18); border-radius:var(--r); padding:3px; }
+        .view-btn { padding:6px 13px; border:none; border-radius:9px; background:transparent; color:rgba(255,255,255,.8); cursor:pointer; font-size:12px; font-weight:700; transition:all var(--ease); }
+        .view-btn:hover { background:rgba(255,255,255,.2); color:#fff; }
+        .view-btn.active { background:#fff; color:var(--primary); }
+        .search-wrap { flex:1; position:relative; min-width:160px; }
+        .search-wrap svg { position:absolute; left:11px; top:50%; transform:translateY(-50%); pointer-events:none; color:var(--text-muted); }
+        .search-input { width:100%; padding:9px 12px 9px 36px; border:none; border-radius:var(--r); background:rgba(255,255,255,.95); font-size:14px; color:var(--text); outline:none; box-shadow:var(--shadow); transition:box-shadow var(--ease); }
+        .search-input:focus { box-shadow:0 0 0 3px rgba(108,99,255,.35),var(--shadow); }
+        .search-input::placeholder { color:var(--text-muted); }
+        .btn-hdr { padding:9px 16px; background:rgba(255,255,255,.18); color:#fff; border:1.5px solid rgba(255,255,255,.4); border-radius:var(--r); cursor:pointer; font-size:12px; font-weight:700; backdrop-filter:blur(4px); transition:background var(--ease); white-space:nowrap; }
+        .btn-hdr:hover { background:rgba(255,255,255,.32); }
+        .btn-hdr.smart { background:rgba(255,220,80,.25); border-color:rgba(255,220,80,.6); }
+        .btn-hdr.smart:hover { background:rgba(255,220,80,.4); }
 
         /* ── Main layout ── */
-        .main { display: flex; gap: 18px; align-items: flex-start; }
+        .main { display:flex; gap:16px; align-items:flex-start; }
+        .cal-card { background:var(--surface); border-radius:var(--r); box-shadow:var(--shadow-lg); flex:1; min-width:0; overflow:hidden; display:flex; flex-direction:column; }
 
-        /* ── Calendar card ── */
-        .cal-card {
-            background: var(--surface); border-radius: var(--r);
-            box-shadow: var(--shadow-lg); padding: 24px;
-            flex: 1; min-width: 0;
-        }
-        .cal-hdr {
-            display: flex; align-items: center;
-            justify-content: space-between; margin-bottom: 18px;
-        }
-        .cal-nav {
-            width: 36px; height: 36px; border: none;
-            border-radius: 50%; background: var(--surface-2);
-            cursor: pointer; font-size: 20px; line-height: 1;
-            display: flex; align-items: center; justify-content: center;
-            color: var(--text); transition: all var(--ease);
-        }
-        .cal-nav:hover { background: var(--primary); color: #fff; }
-        .cal-month { font-size: 20px; font-weight: 700; color: var(--text); }
-        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
-        .day-name {
-            text-align: center; font-size: 11px;
-            font-weight: 700; color: var(--text-muted);
-            padding: 6px 2px; text-transform: uppercase; letter-spacing: .05em;
-        }
-        .day-name.wknd { color: var(--danger); }
-        .day-cell {
-            min-height: 76px; border: 1.5px solid var(--border);
-            border-radius: var(--r-sm); padding: 6px;
-            cursor: pointer; background: var(--surface);
-            display: flex; flex-direction: column; gap: 3px;
-            transition: border-color var(--ease), box-shadow var(--ease);
-        }
-        .day-cell:hover { border-color: var(--primary); box-shadow: var(--shadow); }
-        .day-cell.other-month { background: var(--surface-2); opacity: .45; }
-        .day-cell.other-month:hover { opacity: .75; }
-        .day-cell.today { background: var(--today-bg); border-color: var(--today-ring); }
-        .day-cell.selected { background: var(--selected-bg); border-color: var(--selected-ring); box-shadow: 0 0 0 3px rgba(108,99,255,.18); }
-        .day-num { font-size: 13px; font-weight: 700; color: var(--text); line-height: 1; }
-        .day-cell.today .day-num {
-            background: var(--primary); color: #fff;
-            width: 22px; height: 22px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; font-size: 11px;
-        }
-        .day-cell.other-month .day-num { color: var(--text-muted); }
-        .note-dots { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 2px; }
-        .note-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-        .note-snippet {
-            font-size: 10px; color: var(--text);
-            white-space: nowrap; overflow: hidden;
-            text-overflow: ellipsis; opacity: .7; line-height: 1.3;
-        }
-        .note-time-chip {
-            font-size: 10px; font-weight: 700; color: var(--primary);
-            background: var(--selected-bg); border-radius: 4px;
-            padding: 1px 4px; display: inline-block; margin-top: 1px;
-        }
+        /* ── Month view ── */
+        .month-hdr { display:flex; align-items:center; justify-content:space-between; padding:18px 20px 12px; flex-shrink:0; }
+        .cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; padding:0 12px 12px; }
+        .day-name { text-align:center; font-size:11px; font-weight:700; color:var(--text-muted); padding:6px 2px; text-transform:uppercase; letter-spacing:.05em; }
+        .day-name.wknd { color:var(--danger); }
+        .day-cell { min-height:90px; border:1.5px solid var(--border); border-radius:var(--r-sm); padding:5px; cursor:pointer; background:var(--surface); display:flex; flex-direction:column; gap:2px; transition:border-color var(--ease),box-shadow var(--ease); }
+        .day-cell:hover { border-color:var(--primary); box-shadow:var(--shadow); }
+        .day-cell.other-month { background:var(--surface-2); opacity:.4; }
+        .day-cell.other-month:hover { opacity:.7; }
+        .day-cell.today { background:var(--today-bg); border-color:var(--today-ring); }
+        .day-cell.selected { background:var(--sel-bg); border-color:var(--sel-ring); box-shadow:0 0 0 3px rgba(108,99,255,.18); }
+        .day-num { font-size:13px; font-weight:700; color:var(--text); line-height:1; }
+        .day-cell.today .day-num { background:var(--primary); color:#fff; width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; }
+        .day-cell.other-month .day-num { color:var(--text-muted); }
+        .month-chip { font-size:10px; padding:2px 5px; border-radius:3px; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; cursor:pointer; line-height:1.5; }
+        .month-chip.allday { opacity:.85; }
+        .month-chip.timed::before { content:'⏰ '; opacity:.8; }
+        .month-more { font-size:10px; color:var(--primary); font-weight:700; cursor:pointer; padding:1px 3px; }
+        .note-time-chip { font-size:10px; font-weight:700; color:var(--primary); background:var(--sel-bg); border-radius:4px; padding:1px 4px; display:inline-block; margin-top:1px; }
+
+        /* ── Time grid (Week & Day) ── */
+        .tgrid-wrap { display:flex; flex-direction:column; flex:1; overflow:hidden; }
+        .tgrid-col-hdrs { display:flex; border-bottom:1px solid var(--border); flex-shrink:0; }
+        .tgutter { width:54px; flex-shrink:0; }
+        .tgrid-dcol-hdr { flex:1; min-width:0; border-left:1px solid var(--border); text-align:center; padding:10px 4px 8px; cursor:pointer; transition:background var(--ease); user-select:none; }
+        .tgrid-dcol-hdr:hover { background:var(--surface-2); }
+        .tgrid-dcol-hdr.today-col { background:var(--today-bg); }
+        .tgrid-dcol-hdr.sel-col { background:var(--sel-bg); }
+        .dcol-name { font-size:10px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.04em; }
+        .dcol-num { font-size:20px; font-weight:800; color:var(--text); width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:3px auto 0; }
+        .dcol-num.today { background:var(--primary); color:#fff; }
+        .dcol-num.sel { border:2px solid var(--primary); }
+        .allday-strip { display:flex; border-bottom:1px solid var(--border); flex-shrink:0; }
+        .allday-gutter { width:54px; flex-shrink:0; font-size:9px; font-weight:700; color:var(--text-muted); display:flex; align-items:center; justify-content:flex-end; padding-right:8px; text-transform:uppercase; letter-spacing:.04em; }
+        .allday-col { flex:1; min-width:0; border-left:1px solid var(--border); padding:3px; display:flex; flex-direction:column; gap:2px; min-height:28px; }
+        .allday-chip { font-size:10px; padding:2px 5px; border-radius:3px; color:#fff; cursor:pointer; line-height:1.5; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; transition:filter var(--ease); }
+        .allday-chip:hover { filter:brightness(1.1); }
+        .tgrid-scroll { overflow-y:auto; flex:1; }
+        .tgrid-scroll::-webkit-scrollbar { width:5px; }
+        .tgrid-scroll::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+        .tgrid-inner { display:flex; position:relative; }
+        .tgrid-hours { width:54px; flex-shrink:0; }
+        .tlabel { height:56px; display:flex; align-items:flex-start; justify-content:flex-end; padding-right:8px; font-size:10px; color:var(--text-muted); margin-top:-7px; }
+        .tgrid-dcol { flex:1; min-width:0; border-left:1px solid var(--border); position:relative; cursor:pointer; }
+        .tgrid-dcol:hover { background:rgba(108,99,255,.018); }
+        .tgrid-dcol.today-dcol { background:rgba(255,251,235,.4); }
+        .hline { position:absolute; left:0; right:0; border-top:1px solid var(--border); pointer-events:none; }
+        .hline.half { opacity:.45; border-top-style:dashed; }
+        .evblock { position:absolute; left:2px; right:2px; border-radius:4px; padding:2px 5px; font-size:11px; cursor:pointer; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,.18); z-index:1; color:#fff; }
+        .evblock:hover { filter:brightness(1.08); z-index:2; box-shadow:var(--shadow); }
+        .evblock-title { font-weight:700; line-height:1.3; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .evblock-time { font-size:9px; opacity:.85; }
+        .now-line { position:absolute; left:0; right:0; z-index:10; border-top:2px solid #FF6B6B; pointer-events:none; }
+        .now-dot { width:8px; height:8px; border-radius:50%; background:#FF6B6B; position:absolute; left:-4px; top:-5px; }
+        .add-slot-hint { position:absolute; inset:0; background:rgba(108,99,255,.04); opacity:0; transition:opacity .1s; z-index:0; pointer-events:none; }
+        .tgrid-dcol:hover .add-slot-hint { opacity:1; }
+
+        /* ── Day view top ── */
+        .day-top { text-align:center; padding:18px 16px 14px; border-bottom:1px solid var(--border); flex-shrink:0; }
+        .day-top-date { font-size:30px; font-weight:800; color:var(--text); }
+        .day-top-dow { font-size:13px; color:var(--text-muted); font-weight:700; margin-top:3px; text-transform:capitalize; }
 
         /* ── Side panel ── */
-        .side-panel {
-            width: 0; overflow: hidden; opacity: 0;
-            background: var(--surface); border-radius: var(--r);
-            box-shadow: var(--shadow-lg);
-            display: flex; flex-direction: column;
-            max-height: calc(100vh - 110px);
-            transition: width .22s ease, opacity .22s ease;
-            flex-shrink: 0;
-        }
-        .side-panel.open { width: 340px; opacity: 1; }
-        .panel-hdr {
-            padding: 18px 16px 14px;
-            border-bottom: 1px solid var(--border);
-            flex-shrink: 0;
-            display: flex; align-items: center;
-            justify-content: space-between; gap: 8px;
-        }
-        .panel-date { font-size: 16px; font-weight: 700; color: var(--text); }
-        .panel-body {
-            flex: 1; overflow-y: auto;
-            padding: 14px; display: flex;
-            flex-direction: column; gap: 10px;
-        }
-        .panel-body::-webkit-scrollbar { width: 4px; }
-        .panel-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+        .side-panel { width:0; overflow:hidden; opacity:0; background:var(--surface); border-radius:var(--r); box-shadow:var(--shadow-lg); display:flex; flex-direction:column; max-height:calc(100vh - 110px); transition:width .22s ease,opacity .22s ease; flex-shrink:0; }
+        .side-panel.open { width:340px; opacity:1; }
+        .panel-hdr { padding:16px 14px 12px; border-bottom:1px solid var(--border); flex-shrink:0; display:flex; align-items:center; justify-content:space-between; gap:8px; }
+        .panel-date { font-size:15px; font-weight:700; color:var(--text); }
+        .panel-body { flex:1; overflow-y:auto; padding:12px; display:flex; flex-direction:column; gap:9px; }
+        .panel-body::-webkit-scrollbar { width:4px; }
+        .panel-body::-webkit-scrollbar-thumb { background:var(--border); border-radius:4px; }
 
         /* ── Note card ── */
-        .note-card {
-            background: var(--surface-2); border-radius: var(--r-sm);
-            padding: 11px; border-left: 4px solid var(--primary);
-            transition: box-shadow var(--ease);
-        }
-        .note-card:hover { box-shadow: var(--shadow); }
-        .time-badge {
-            display: inline-flex; align-items: center; gap: 4px;
-            font-size: 13px; font-weight: 800; color: var(--primary);
-            background: var(--selected-bg); padding: 3px 10px;
-            border-radius: 20px; margin-bottom: 7px;
-            letter-spacing: .02em;
-        }
-        .note-card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
-        .note-text {
-            font-size: 14px; color: var(--text); line-height: 1.55;
-            flex: 1; white-space: pre-wrap; word-break: break-word;
-        }
-        .note-text.editing { display: none; }
-        .note-actions {
-            display: flex; gap: 3px; flex-shrink: 0;
-            opacity: 0; transition: opacity var(--ease);
-        }
-        .note-card:hover .note-actions { opacity: 1; }
-        .note-meta { margin-top: 7px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-        .grp-badge { font-size: 10px; padding: 2px 7px; border-radius: 10px; color: #fff; font-weight: 700; }
-        .color-pip { width: 9px; height: 9px; border-radius: 50%; }
+        .note-card { background:var(--surface-2); border-radius:var(--r-sm); padding:11px; border-left:4px solid var(--primary); transition:box-shadow var(--ease); }
+        .note-card:hover { box-shadow:var(--shadow); }
+        .time-badge { display:inline-flex; align-items:center; gap:4px; font-size:13px; font-weight:800; color:var(--primary); background:var(--sel-bg); padding:3px 10px; border-radius:20px; margin-bottom:7px; }
+        .note-card-top { display:flex; justify-content:space-between; align-items:flex-start; gap:8px; }
+        .note-text { font-size:14px; color:var(--text); line-height:1.55; flex:1; white-space:pre-wrap; word-break:break-word; }
+        .note-text.editing { display:none; }
+        .note-actions { display:flex; gap:3px; flex-shrink:0; opacity:0; transition:opacity var(--ease); }
+        .note-card:hover .note-actions { opacity:1; }
+        .note-meta { margin-top:7px; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+        .grp-badge { font-size:10px; padding:2px 7px; border-radius:10px; color:#fff; font-weight:700; }
+        .color-pip { width:9px; height:9px; border-radius:50%; }
+        .note-desc { font-size:12px; color:var(--text-muted); margin-top:5px; line-height:1.4; white-space:pre-wrap; }
 
-        /* ── Edit / Add forms ── */
-        .edit-form { display: none; }
-        .edit-form.on { display: block; }
-        .edit-ta, .add-ta, .smart-ta {
-            width: 100%; padding: 7px 9px;
-            border: 1.5px solid var(--border);
-            border-radius: var(--r-sm);
-            font-family: inherit; font-size: 13px;
-            resize: vertical; min-height: 70px;
-            color: var(--text); background: var(--surface);
-            outline: none; transition: border-color var(--ease);
-        }
-        .smart-ta { min-height: 90px; font-size: 14px; }
-        .edit-ta:focus, .add-ta:focus, .smart-ta:focus { border-color: var(--primary); }
-        .time-input {
-            padding: 4px 8px; border: 1.5px solid var(--border);
-            border-radius: var(--r-sm); font-size: 13px;
-            color: var(--text); background: var(--surface);
-            outline: none; cursor: pointer; width: auto;
-        }
-        .time-input:focus { border-color: var(--primary); }
-        .form-row { display: flex; gap: 8px; align-items: center; margin-top: 8px; flex-wrap: wrap; }
-        .form-lbl { font-size: 11px; font-weight: 700; color: var(--text-muted); flex-shrink: 0; }
-        .color-picker { display: flex; gap: 5px; flex-wrap: wrap; }
-        .swatch {
-            width: 20px; height: 20px; border-radius: 50%;
-            cursor: pointer; border: 2px solid transparent;
-            transition: transform .12s, border-color .12s;
-        }
-        .swatch.on { border-color: var(--text); transform: scale(1.25); }
-        .grp-sel {
-            padding: 4px 8px; border: 1.5px solid var(--border);
-            border-radius: var(--r-sm); font-size: 13px;
-            color: var(--text); background: var(--surface);
-            cursor: pointer; outline: none;
-        }
-        .grp-sel:focus { border-color: var(--primary); }
-        .form-btns { display: flex; gap: 7px; justify-content: flex-end; margin-top: 10px; }
-
-        /* ── Add note form ── */
-        .add-form {
-            background: var(--surface-2); border-radius: var(--r-sm);
-            padding: 12px; border: 1.5px dashed var(--border); display: none;
-        }
-        .add-form.on { display: block; }
-        .btn-add-note {
-            width: 100%; padding: 9px;
-            background: transparent; border: 1.5px dashed var(--border);
-            border-radius: var(--r-sm); color: var(--text-muted);
-            cursor: pointer; font-size: 13px; transition: all var(--ease);
-            display: flex; align-items: center; justify-content: center; gap: 5px;
-        }
-        .btn-add-note:hover { border-color: var(--primary); color: var(--primary); background: var(--selected-bg); }
+        /* ── Forms ── */
+        .edit-form { display:none; }
+        .edit-form.on { display:block; }
+        .edit-ta,.add-ta,.smart-ta { width:100%; padding:7px 9px; border:1.5px solid var(--border); border-radius:var(--r-sm); font-family:inherit; font-size:13px; resize:vertical; min-height:60px; color:var(--text); background:var(--surface); outline:none; transition:border-color var(--ease); }
+        .smart-ta { min-height:90px; font-size:14px; }
+        .edit-ta:focus,.add-ta:focus,.smart-ta:focus { border-color:var(--primary); }
+        .title-input { width:100%; padding:7px 9px; border:1.5px solid var(--border); border-radius:var(--r-sm); font-family:inherit; font-size:13px; color:var(--text); background:var(--surface); outline:none; transition:border-color var(--ease); }
+        .title-input:focus { border-color:var(--primary); }
+        .time-input { padding:4px 8px; border:1.5px solid var(--border); border-radius:var(--r-sm); font-size:13px; color:var(--text); background:var(--surface); outline:none; cursor:pointer; }
+        .time-input:focus { border-color:var(--primary); }
+        .allday-label { display:flex; align-items:center; gap:6px; font-size:12px; color:var(--text-muted); font-weight:700; cursor:pointer; }
+        .allday-cb { width:14px; height:14px; accent-color:var(--primary); cursor:pointer; }
+        .form-row { display:flex; gap:8px; align-items:center; margin-top:8px; flex-wrap:wrap; }
+        .form-lbl { font-size:11px; font-weight:700; color:var(--text-muted); flex-shrink:0; }
+        .color-picker { display:flex; gap:5px; flex-wrap:wrap; }
+        .swatch { width:20px; height:20px; border-radius:50%; cursor:pointer; border:2px solid transparent; transition:transform .12s,border-color .12s; }
+        .swatch.on { border-color:var(--text); transform:scale(1.25); }
+        .grp-sel { padding:4px 8px; border:1.5px solid var(--border); border-radius:var(--r-sm); font-size:13px; color:var(--text); background:var(--surface); cursor:pointer; outline:none; }
+        .grp-sel:focus { border-color:var(--primary); }
+        .form-btns { display:flex; gap:7px; justify-content:flex-end; margin-top:10px; }
+        .add-form { background:var(--surface-2); border-radius:var(--r-sm); padding:12px; border:1.5px dashed var(--border); display:none; }
+        .add-form.on { display:block; }
+        .btn-add-note { width:100%; padding:9px; background:transparent; border:1.5px dashed var(--border); border-radius:var(--r-sm); color:var(--text-muted); cursor:pointer; font-size:13px; transition:all var(--ease); display:flex; align-items:center; justify-content:center; gap:5px; }
+        .btn-add-note:hover { border-color:var(--primary); color:var(--primary); background:var(--sel-bg); }
 
         /* ── Buttons ── */
-        .btn { padding: 7px 14px; border: none; border-radius: var(--r-sm); cursor: pointer; font-size: 12px; font-weight: 700; transition: all var(--ease); }
-        .btn-primary { background: var(--primary); color: #fff; }
-        .btn-primary:hover { background: var(--primary-dark); }
-        .btn-ghost { background: transparent; color: var(--text-muted); }
-        .btn-ghost:hover { background: var(--border); color: var(--text); }
-        .btn-icon {
-            width: 28px; height: 28px; border: none; border-radius: 50%;
-            background: transparent; cursor: pointer; font-size: 14px;
-            display: flex; align-items: center; justify-content: center;
-            color: var(--text-muted); transition: background var(--ease);
-        }
-        .btn-icon:hover { background: var(--border); color: var(--text); }
+        .btn { padding:7px 14px; border:none; border-radius:var(--r-sm); cursor:pointer; font-size:12px; font-weight:700; transition:all var(--ease); }
+        .btn-primary { background:var(--primary); color:#fff; }
+        .btn-primary:hover { background:var(--primary-dark); }
+        .btn-ghost { background:transparent; color:var(--text-muted); }
+        .btn-ghost:hover { background:var(--border); color:var(--text); }
+        .btn-icon { width:28px; height:28px; border:none; border-radius:50%; background:transparent; cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center; color:var(--text-muted); transition:background var(--ease); }
+        .btn-icon:hover { background:var(--border); color:var(--text); }
 
-        /* ── Empty state ── */
-        .empty { text-align: center; padding: 24px 10px; color: var(--text-muted); }
-        .empty-ico { font-size: 36px; margin-bottom: 8px; }
-        .empty-txt { font-size: 13px; }
+        /* ── Empty / misc ── */
+        .empty { text-align:center; padding:24px 10px; color:var(--text-muted); }
+        .empty-ico { font-size:36px; margin-bottom:8px; }
+        .empty-txt { font-size:13px; }
 
         /* ── Search results ── */
-        .search-results {
-            background: var(--surface); border-radius: var(--r);
-            box-shadow: var(--shadow-lg); padding: 20px;
-            margin-top: 18px; display: none;
-        }
-        .search-results.on { display: block; }
-        .sr-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 12px; }
-        .sr-item {
-            padding: 11px 12px; border-radius: var(--r-sm);
-            background: var(--surface-2); margin-bottom: 8px;
-            cursor: pointer; border-left: 4px solid var(--primary);
-            transition: box-shadow var(--ease);
-        }
-        .sr-item:hover { box-shadow: var(--shadow); }
-        .sr-date { font-size: 11px; color: var(--text-muted); font-weight: 700; margin-bottom: 3px; }
-        .sr-text { font-size: 13px; color: var(--text); line-height: 1.4; }
-        .sr-text mark { background: #FBBF24; border-radius: 2px; padding: 0 2px; }
-        .sr-empty { text-align: center; color: var(--text-muted); padding: 18px; font-size: 13px; }
+        .search-results { background:var(--surface); border-radius:var(--r); box-shadow:var(--shadow-lg); padding:20px; margin-top:16px; display:none; }
+        .search-results.on { display:block; }
+        .sr-title { font-size:15px; font-weight:700; color:var(--text); margin-bottom:12px; }
+        .sr-item { padding:11px 12px; border-radius:var(--r-sm); background:var(--surface-2); margin-bottom:8px; cursor:pointer; border-left:4px solid var(--primary); transition:box-shadow var(--ease); }
+        .sr-item:hover { box-shadow:var(--shadow); }
+        .sr-date { font-size:11px; color:var(--text-muted); font-weight:700; margin-bottom:3px; }
+        .sr-text { font-size:13px; color:var(--text); line-height:1.4; }
+        .sr-text mark { background:#FBBF24; border-radius:2px; padding:0 2px; }
+        .sr-empty { text-align:center; color:var(--text-muted); padding:18px; font-size:13px; }
 
         /* ── Modals ── */
-        .overlay {
-            display: none; position: fixed; inset: 0;
-            background: rgba(0,0,0,.48); z-index: 1000;
-            align-items: center; justify-content: center;
-            backdrop-filter: blur(4px);
-        }
-        .overlay.on { display: flex; }
-        .modal-box {
-            background: var(--surface); border-radius: var(--r);
-            padding: 26px; width: 420px; max-width: 95vw;
-            box-shadow: var(--shadow-lg); max-height: 90vh; overflow-y: auto;
-        }
-        .modal-box.wide { width: 540px; }
-        .modal-title {
-            font-size: 18px; font-weight: 800; color: var(--text);
-            margin-bottom: 18px;
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .grp-item {
-            display: flex; align-items: center; gap: 10px;
-            padding: 9px 11px; border-radius: var(--r-sm);
-            background: var(--surface-2); margin-bottom: 7px;
-        }
-        .grp-circ { width: 13px; height: 13px; border-radius: 50%; flex-shrink: 0; }
-        .grp-name { flex: 1; font-size: 13px; font-weight: 600; color: var(--text); }
-        .add-grp-form { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 4px; }
-        .grp-input {
-            flex: 1; padding: 8px 11px; border: 1.5px solid var(--border);
-            border-radius: var(--r-sm); font-size: 13px; color: var(--text); outline: none; min-width: 100px;
-        }
-        .grp-input:focus { border-color: var(--primary); }
-        .grp-list { margin-bottom: 16px; }
-
-        /* ── Smart note modal ── */
-        .smart-preview {
-            display: none; flex-wrap: wrap; gap: 8px;
-            background: var(--surface-2); border-radius: var(--r-sm);
-            padding: 12px; margin-top: 12px; border: 1px solid var(--border);
-        }
-        .smart-preview.on { display: flex; }
-        .prev-chip {
-            display: inline-flex; align-items: center; gap: 5px;
-            padding: 4px 10px; border-radius: 20px;
-            background: var(--surface); border: 1.5px solid var(--border);
-            font-size: 12px; font-weight: 600; color: var(--text);
-        }
-        .prev-chip.date { border-color: var(--today-ring); background: var(--today-bg); }
-        .prev-chip.time { border-color: var(--primary); background: var(--selected-bg); color: var(--primary); }
-        .prev-text-row {
-            width: 100%; border-top: 1px solid var(--border);
-            padding-top: 8px; margin-top: 2px;
-            font-size: 12px; color: var(--text-muted); line-height: 1.5;
-        }
-        .prev-text-row b { color: var(--text); }
-        .smart-hint {
-            margin-top: 14px; font-size: 11px; color: var(--text-muted);
-            line-height: 1.8; background: var(--surface-2);
-            border-radius: var(--r-sm); padding: 10px 12px;
-        }
-        .smart-hint code {
-            background: var(--border); border-radius: 3px;
-            padding: 1px 5px; font-family: 'Courier New', monospace; font-size: 11px;
-        }
-        .smart-ctrl { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+        .overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.48); z-index:1000; align-items:center; justify-content:center; backdrop-filter:blur(4px); }
+        .overlay.on { display:flex; }
+        .modal-box { background:var(--surface); border-radius:var(--r); padding:26px; width:420px; max-width:95vw; box-shadow:var(--shadow-lg); max-height:90vh; overflow-y:auto; }
+        .modal-box.wide { width:540px; }
+        .modal-title { font-size:18px; font-weight:800; color:var(--text); margin-bottom:18px; display:flex; justify-content:space-between; align-items:center; }
+        .grp-item { display:flex; align-items:center; gap:10px; padding:9px 11px; border-radius:var(--r-sm); background:var(--surface-2); margin-bottom:7px; }
+        .grp-circ { width:13px; height:13px; border-radius:50%; flex-shrink:0; }
+        .grp-name-el { flex:1; font-size:13px; font-weight:600; color:var(--text); }
+        .add-grp-form { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:4px; }
+        .grp-input { flex:1; padding:8px 11px; border:1.5px solid var(--border); border-radius:var(--r-sm); font-size:13px; color:var(--text); outline:none; min-width:100px; }
+        .grp-input:focus { border-color:var(--primary); }
+        .grp-list { margin-bottom:16px; }
+        .smart-preview { display:none; flex-wrap:wrap; gap:8px; background:var(--surface-2); border-radius:var(--r-sm); padding:12px; margin-top:12px; border:1px solid var(--border); }
+        .smart-preview.on { display:flex; }
+        .prev-chip { display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:20px; background:var(--surface); border:1.5px solid var(--border); font-size:12px; font-weight:600; color:var(--text); }
+        .prev-chip.date { border-color:var(--today-ring); background:var(--today-bg); }
+        .prev-chip.time { border-color:var(--primary); background:var(--sel-bg); color:var(--primary); }
+        .prev-text-row { width:100%; border-top:1px solid var(--border); padding-top:8px; margin-top:2px; font-size:12px; color:var(--text-muted); line-height:1.5; }
+        .prev-text-row b { color:var(--text); }
+        .smart-hint { margin-top:14px; font-size:11px; color:var(--text-muted); line-height:1.8; background:var(--surface-2); border-radius:var(--r-sm); padding:10px 12px; }
+        .smart-hint code { background:var(--border); border-radius:3px; padding:1px 5px; font-family:'Courier New',monospace; font-size:11px; }
+        .smart-ctrl { font-size:11px; color:var(--text-muted); margin-top:4px; }
 
         /* ── Checklist ── */
-        .cl-divider { height: 1px; background: var(--border); margin: 10px 0 8px; }
-        .cl-section { display: flex; flex-direction: column; gap: 7px; }
-        .cl-section-hdr {
-            font-size: 11px; font-weight: 800; color: var(--text-muted);
-            text-transform: uppercase; letter-spacing: .06em;
-        }
-        .cl-empty-prompt {
-            border: 1.5px dashed var(--border); border-radius: var(--r-sm);
-            padding: 11px 14px; cursor: pointer;
-            color: var(--text-muted); font-size: 13px;
-            transition: all var(--ease); display: flex; align-items: center; gap: 8px;
-        }
-        .cl-empty-prompt:hover { border-color: var(--primary); color: var(--primary); background: var(--selected-bg); }
-        .cl-empty-inp-row { padding: 2px 0; }
-        .cl-card {
-            background: var(--surface-2); border-radius: var(--r-sm);
-            border: 1.5px solid var(--border); overflow: hidden;
-        }
-        .cl-items-list { display: flex; flex-direction: column; }
-        .cl-item {
-            display: flex; align-items: center; gap: 6px;
-            padding: 7px 10px; border-bottom: 1px solid var(--border);
-            transition: background var(--ease);
-        }
-        .cl-item:last-child { border-bottom: none; }
-        .cl-item:hover { background: var(--surface); }
-        .cl-item.starred { background: rgba(251,191,36,.07); }
-        .cl-star {
-            width: 20px; height: 20px; border: none; background: transparent;
-            cursor: pointer; font-size: 14px; padding: 0; flex-shrink: 0;
-            color: var(--border); transition: color .12s, transform .12s;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .cl-star:hover { transform: scale(1.2); color: #FBBF24; }
-        .cl-star.on { color: #FBBF24; }
-        .cl-check { width: 15px; height: 15px; cursor: pointer; flex-shrink: 0; accent-color: var(--primary); }
-        .cl-item-text { flex: 1; font-size: 13px; color: var(--text); line-height: 1.4; word-break: break-word; }
-        .cl-item-text.done { text-decoration: line-through; color: var(--text-muted); }
-        .cl-item-del {
-            width: 18px; height: 18px; border: none; background: transparent;
-            cursor: pointer; font-size: 11px; color: var(--text-muted);
-            opacity: 0; transition: opacity var(--ease), color var(--ease);
-            flex-shrink: 0; display: flex; align-items: center; justify-content: center; border-radius: 50%;
-        }
-        .cl-item:hover .cl-item-del { opacity: 1; }
-        .cl-item-del:hover { color: var(--danger); background: rgba(255,107,107,.12); }
-        .cl-add-row { padding: 6px 10px; border-top: 1px solid var(--border); }
-        .cl-input {
-            width: 100%; border: none; background: transparent;
-            font-family: inherit; font-size: 13px; color: var(--text); outline: none; padding: 2px 0;
-        }
-        .cl-input::placeholder { color: var(--text-muted); }
-        .cl-done-banner {
-            display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-            padding: 9px 12px; background: rgba(29,209,161,.1);
-            border-top: 1px solid rgba(29,209,161,.3);
-            font-size: 13px; font-weight: 600; color: #0d9e78;
-        }
-        .cl-done-banner .btn { padding: 4px 10px; font-size: 11px; }
-        .btn-new-cl {
-            width: 100%; padding: 8px;
-            background: transparent; border: 1.5px dashed var(--border);
-            border-radius: var(--r-sm); color: var(--text-muted);
-            cursor: pointer; font-size: 12px; transition: all var(--ease);
-            display: flex; align-items: center; justify-content: center; gap: 4px;
-        }
-        .btn-new-cl:hover { border-color: var(--primary); color: var(--primary); background: var(--selected-bg); }
-        .cl-sub-hdr {
-            font-size: 10px; font-weight: 700; color: var(--text-muted);
-            text-transform: uppercase; letter-spacing: .05em; margin-top: 2px;
-        }
-        .cl-collapsed { background: var(--surface-2); border-radius: var(--r-sm); border: 1.5px solid var(--border); overflow: hidden; }
-        .cl-coll-hdr {
-            display: flex; align-items: center; gap: 8px;
-            padding: 9px 12px; cursor: pointer; transition: background var(--ease);
-        }
-        .cl-coll-hdr:hover { background: var(--surface); }
-        .cl-coll-status { font-size: 13px; flex-shrink: 0; }
-        .cl-coll-info { flex: 1; font-size: 12px; color: var(--text-muted); }
-        .cl-coll-chevron { font-size: 11px; color: var(--text-muted); transition: transform .15s; display: inline-block; }
-        .cl-coll-chevron.open { transform: rotate(90deg); }
-        .cl-coll-body { border-top: 1px solid var(--border); display: none; }
-        .cl-coll-body.open { display: block; }
-        .cl-coll-item {
-            display: flex; align-items: center; gap: 7px;
-            padding: 6px 12px; border-bottom: 1px solid var(--border); font-size: 12px;
-        }
-        .cl-coll-item:last-child { border-bottom: none; }
-        .cl-coll-star { color: #FBBF24; font-size: 11px; flex-shrink: 0; }
-        .cl-coll-check { width: 13px; height: 13px; flex-shrink: 0; accent-color: var(--primary); }
-        .cl-coll-text { color: var(--text); }
-        .cl-coll-text.done { text-decoration: line-through; color: var(--text-muted); }
+        .cl-divider { height:1px; background:var(--border); margin:10px 0 8px; }
+        .cl-section { display:flex; flex-direction:column; gap:7px; }
+        .cl-section-hdr { font-size:11px; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:.06em; }
+        .cl-empty-prompt { border:1.5px dashed var(--border); border-radius:var(--r-sm); padding:11px 14px; cursor:pointer; color:var(--text-muted); font-size:13px; transition:all var(--ease); display:flex; align-items:center; gap:8px; }
+        .cl-empty-prompt:hover { border-color:var(--primary); color:var(--primary); background:var(--sel-bg); }
+        .cl-card { background:var(--surface-2); border-radius:var(--r-sm); border:1.5px solid var(--border); overflow:hidden; }
+        .cl-items-list { display:flex; flex-direction:column; }
+        .cl-item { display:flex; align-items:center; gap:6px; padding:7px 10px; border-bottom:1px solid var(--border); transition:background var(--ease); }
+        .cl-item:last-child { border-bottom:none; }
+        .cl-item:hover { background:var(--surface); }
+        .cl-item.starred { background:rgba(251,191,36,.07); }
+        .cl-star { width:20px; height:20px; border:none; background:transparent; cursor:pointer; font-size:14px; padding:0; flex-shrink:0; color:var(--border); transition:color .12s,transform .12s; display:flex; align-items:center; justify-content:center; }
+        .cl-star:hover { transform:scale(1.2); color:#FBBF24; }
+        .cl-star.on { color:#FBBF24; }
+        .cl-check { width:15px; height:15px; cursor:pointer; flex-shrink:0; accent-color:var(--primary); }
+        .cl-item-text { flex:1; font-size:13px; color:var(--text); line-height:1.4; word-break:break-word; }
+        .cl-item-text.done { text-decoration:line-through; color:var(--text-muted); }
+        .cl-item-del { width:18px; height:18px; border:none; background:transparent; cursor:pointer; font-size:11px; color:var(--text-muted); opacity:0; transition:opacity var(--ease),color var(--ease); flex-shrink:0; display:flex; align-items:center; justify-content:center; border-radius:50%; }
+        .cl-item:hover .cl-item-del { opacity:1; }
+        .cl-item-del:hover { color:var(--danger); background:rgba(255,107,107,.12); }
+        .cl-add-row { padding:6px 10px; border-top:1px solid var(--border); }
+        .cl-input { width:100%; border:none; background:transparent; font-family:inherit; font-size:13px; color:var(--text); outline:none; padding:2px 0; }
+        .cl-input::placeholder { color:var(--text-muted); }
+        .cl-done-banner { display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:9px 12px; background:rgba(29,209,161,.1); border-top:1px solid rgba(29,209,161,.3); font-size:13px; font-weight:600; color:#0d9e78; }
+        .cl-done-banner .btn { padding:4px 10px; font-size:11px; }
+        .btn-new-cl { width:100%; padding:8px; background:transparent; border:1.5px dashed var(--border); border-radius:var(--r-sm); color:var(--text-muted); cursor:pointer; font-size:12px; transition:all var(--ease); display:flex; align-items:center; justify-content:center; gap:4px; }
+        .btn-new-cl:hover { border-color:var(--primary); color:var(--primary); background:var(--sel-bg); }
+        .cl-sub-hdr { font-size:10px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.05em; margin-top:2px; }
+        .cl-collapsed { background:var(--surface-2); border-radius:var(--r-sm); border:1.5px solid var(--border); overflow:hidden; }
+        .cl-coll-hdr { display:flex; align-items:center; gap:8px; padding:9px 12px; cursor:pointer; transition:background var(--ease); }
+        .cl-coll-hdr:hover { background:var(--surface); }
+        .cl-coll-status { font-size:13px; flex-shrink:0; }
+        .cl-coll-info { flex:1; font-size:12px; color:var(--text-muted); }
+        .cl-coll-chevron { font-size:11px; color:var(--text-muted); transition:transform .15s; display:inline-block; }
+        .cl-coll-chevron.open { transform:rotate(90deg); }
+        .cl-coll-body { border-top:1px solid var(--border); display:none; }
+        .cl-coll-body.open { display:block; }
+        .cl-coll-item { display:flex; align-items:center; gap:7px; padding:6px 12px; border-bottom:1px solid var(--border); font-size:12px; }
+        .cl-coll-item:last-child { border-bottom:none; }
+        .cl-coll-star { color:#FBBF24; font-size:11px; flex-shrink:0; }
+        .cl-coll-check { width:13px; height:13px; flex-shrink:0; accent-color:var(--primary); }
+        .cl-coll-text { color:var(--text); }
+        .cl-coll-text.done { text-decoration:line-through; color:var(--text-muted); }
 
-        @media (max-width: 700px) {
-            .main { flex-direction: column; }
-            .side-panel.open { width: 100%; }
-            .day-cell { min-height: 54px; }
+        @media (max-width:760px) {
+            .main { flex-direction:column; }
+            .side-panel.open { width:100%; }
+            .day-cell { min-height:60px; }
+            .period-title { min-width:120px; font-size:13px; }
         }
     </style>
 </head>
 <body>
 <div class="app">
-
-    <!-- Header -->
     <div class="header">
         <div class="logo">📅 Календарь++</div>
+        <div class="nav-group">
+            <button class="btn-today" onclick="goToday()">Сегодня</button>
+            <button class="cal-nav" onclick="goPrev()">‹</button>
+            <button class="cal-nav" onclick="goNext()">›</button>
+            <span class="period-title" id="periodTitle"></span>
+        </div>
+        <div class="view-switcher">
+            <button class="view-btn" data-view="month" onclick="setView('month')">Месяц</button>
+            <button class="view-btn" data-view="week" onclick="setView('week')">Неделя</button>
+            <button class="view-btn" data-view="day" onclick="setView('день')">День</button>
+        </div>
         <div class="search-wrap">
-            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"
-                 viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-            <input class="search-input" id="searchInput"
-                   type="text" placeholder="Поиск по заметкам…"
-                   oninput="handleSearch(this.value)">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input class="search-input" id="searchInput" type="text" placeholder="Поиск по заметкам…" oninput="handleSearch(this.value)">
         </div>
         <button class="btn-hdr smart" onclick="openSmart()">✨ Умная заметка</button>
         <button class="btn-hdr" onclick="openGroups()">🏷 Группы</button>
     </div>
 
-    <!-- Main -->
     <div class="main">
-        <div class="cal-card">
-            <div class="cal-hdr">
-                <button class="cal-nav" onclick="changeMonth(-1)">‹</button>
-                <div class="cal-month" id="calMonth"></div>
-                <button class="cal-nav" onclick="changeMonth(1)">›</button>
-            </div>
-            <div class="cal-grid" id="calGrid"></div>
-        </div>
-
+        <div class="cal-card" id="calCard"></div>
         <div class="side-panel" id="sidePanel">
             <div class="panel-hdr">
                 <div class="panel-date" id="panelDate"></div>
-                <button class="btn-icon" onclick="closePanel()" title="Закрыть">✕</button>
+                <button class="btn-icon" onclick="closePanel()">✕</button>
             </div>
             <div class="panel-body" id="panelBody"></div>
         </div>
     </div>
-
     <div class="search-results" id="searchResults"></div>
 </div>
 
 <!-- Smart note modal -->
 <div class="overlay" id="smartOverlay" onclick="if(event.target===this)closeSmart()">
     <div class="modal-box wide">
-        <div class="modal-title">
-            <span>✨ Умная заметка</span>
-            <button class="btn-icon" onclick="closeSmart()">✕</button>
-        </div>
-        <textarea class="smart-ta" id="smartTa"
-            placeholder="Напишите заметку… Например: Встреча с командой в 14:00 #среда #работа #синий"
-            oninput="updateSmartPreview()"></textarea>
+        <div class="modal-title"><span>✨ Умная заметка</span><button class="btn-icon" onclick="closeSmart()">✕</button></div>
+        <textarea class="smart-ta" id="smartTa" placeholder="Напишите заметку… Например: Встреча с командой в 14:00 #среда #работа #синий" oninput="updateSmartPreview()"></textarea>
         <div class="smart-preview" id="smartPreview"></div>
         <div class="form-btns" style="margin-top:14px">
             <div class="smart-ctrl">Ctrl+Enter — создать</div>
@@ -510,10 +310,11 @@
             <button class="btn btn-primary" onclick="createSmartNote()">Создать заметку</button>
         </div>
         <div class="smart-hint">
-            <b>Дата:</b> <code>#понедельник</code> <code>#среду</code> <code>#13 июля</code> <code>#первое мая</code> <code>#02.04</code> <code>#15.06.2027</code> — или просто напишите «15 июня» в тексте<br>
-            <b>Время:</b> <code>#14:00</code> — или напишите «в 14:00», «в 9 утра», «в 6 вечера» в тексте<br>
-            <b>Цвет:</b> <code>#красный</code> <code>#зелёный</code> <code>#синий</code> <code>#жёлтый</code> <code>#оранжевый</code> <code>#фиолетовый</code> <code>#розовый</code> <code>#серый</code><br>
-            <b>Группа:</b> <code>#работа</code> <code>#личное</code> — любое название существующей группы
+            <b>Дата:</b> <code>#понедельник</code> <code>#13 июля</code> <code>#первое мая</code> <code>#02.04</code> — или «15 июня» в тексте<br>
+            <b>Время:</b> <code>#14:00</code> — или «в 14:00», «в 9 утра» в тексте<br>
+            <b>Весь день:</b> <code>#allday</code> <code>#весьдень</code><br>
+            <b>Цвет:</b> <code>#красный</code> <code>#зелёный</code> <code>#синий</code> <code>#жёлтый</code> <code>#фиолетовый</code><br>
+            <b>Группа:</b> <code>#работа</code> <code>#личное</code> — название существующей группы
         </div>
     </div>
 </div>
@@ -521,14 +322,10 @@
 <!-- Groups modal -->
 <div class="overlay" id="grpOverlay" onclick="if(event.target===this)closeGroups()">
     <div class="modal-box">
-        <div class="modal-title">
-            <span>🏷 Группы заметок</span>
-            <button class="btn-icon" onclick="closeGroups()">✕</button>
-        </div>
+        <div class="modal-title"><span>🏷 Группы заметок</span><button class="btn-icon" onclick="closeGroups()">✕</button></div>
         <div class="grp-list" id="grpList"></div>
         <div class="add-grp-form">
-            <input class="grp-input" id="newGrpName" placeholder="Название группы…"
-                   maxlength="28" onkeydown="if(event.key==='Enter')addGroup()">
+            <input class="grp-input" id="newGrpName" placeholder="Название группы…" maxlength="28" onkeydown="if(event.key==='Enter')addGroup()">
             <div class="color-picker" id="grpCpick"></div>
             <button class="btn btn-primary" onclick="addGroup()">Добавить</button>
         </div>
@@ -542,37 +339,36 @@ const GROUPS_K = 'calpp_groups2';
 const CLISTS_K = 'calpp_clists';
 
 const COLORS = ['#FF6B6B','#FF9F43','#FECA57','#1DD1A1','#54A0FF','#748FFC','#C56CF0','#FD79A8','#A8A8B3'];
-
 const DEFAULT_GROUPS = [
-    { id: 'work',      name: 'Работа',  color: '#748FFC' },
-    { id: 'personal',  name: 'Личное',  color: '#1DD1A1' },
-    { id: 'important', name: 'Важное',  color: '#FF6B6B' },
+    { id:'work', name:'Работа', color:'#748FFC' },
+    { id:'personal', name:'Личное', color:'#1DD1A1' },
+    { id:'important', name:'Важное', color:'#FF6B6B' },
 ];
-
 const MONTHS     = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
 const MONTHS_GEN = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+const DOWS_SHORT = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
+const DOWS_FULL  = ['Воскресенье','Понедельник','Вторник','Среда','Четверг','Пятница','Суббота'];
 const DAY_NAMES  = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
 
-// ── Parsing dictionaries ──────────────────────────────────
+// Time grid settings
+const GRID_START = 8, GRID_END = 22, HOUR_H = 56;
+
+// ── Parsing dicts ──────────────────────────────────────────
 const COLOR_WORDS = {
     'красный':'#FF6B6B','красная':'#FF6B6B','красное':'#FF6B6B',
     'оранжевый':'#FF9F43','оранжевая':'#FF9F43',
     'жёлтый':'#FECA57','желтый':'#FECA57','жёлтая':'#FECA57','желтая':'#FECA57',
     'зелёный':'#1DD1A1','зеленый':'#1DD1A1','зелёная':'#1DD1A1','зеленая':'#1DD1A1',
-    'синий':'#54A0FF','синяя':'#54A0FF','синее':'#54A0FF',
+    'синий':'#54A0FF','синяя':'#54A0FF',
     'голубой':'#748FFC','голубая':'#748FFC',
     'фиолетовый':'#C56CF0','фиолетовая':'#C56CF0',
     'розовый':'#FD79A8','розовая':'#FD79A8',
     'серый':'#A8A8B3','серая':'#A8A8B3',
 };
-
 const DOW_MAP = {
-    'понедельник':1,'вторник':2,'среда':3,'среду':3,
-    'четверг':4,'пятница':5,'пятницу':5,
-    'суббота':6,'субботу':6,'воскресенье':0,'воскресенья':0,
-    'пн':1,'вт':2,'ср':3,'чт':4,'пт':5,'сб':6,'вс':0,
+    'понедельник':1,'вторник':2,'среда':3,'среду':3,'четверг':4,'пятница':5,'пятницу':5,
+    'суббота':6,'субботу':6,'воскресенье':0,'пн':1,'вт':2,'ср':3,'чт':4,'пт':5,'сб':6,'вс':0,
 };
-
 const ORDINALS = {
     'первое':1,'первого':1,'второе':2,'второго':2,'третье':3,'третьего':3,
     'четвёртое':4,'четвертое':4,'четвёртого':4,'четвертого':4,
@@ -584,14 +380,12 @@ const ORDINALS = {
     'семнадцатое':17,'семнадцатого':17,'восемнадцатое':18,'восемнадцатого':18,
     'девятнадцатое':19,'девятнадцатого':19,'двадцатое':20,'двадцатого':20,
     'двадцать первое':21,'двадцать первого':21,'двадцать второе':22,'двадцать второго':22,
-    'двадцать третье':23,'двадцать третьего':23,
-    'двадцать четвёртое':24,'двадцать четвертое':24,'двадцать четвёртого':24,'двадцать четвертого':24,
+    'двадцать третье':23,'двадцать третьего':23,'двадцать четвёртое':24,'двадцать четвертое':24,
     'двадцать пятое':25,'двадцать пятого':25,'двадцать шестое':26,'двадцать шестого':26,
     'двадцать седьмое':27,'двадцать седьмого':27,'двадцать восьмое':28,'двадцать восьмого':28,
     'двадцать девятое':29,'двадцать девятого':29,'тридцатое':30,'тридцатого':30,
     'тридцать первое':31,'тридцать первого':31,
 };
-
 const MONTH_MAP = {
     'январь':0,'января':0,'январе':0,'февраль':1,'февраля':1,'феврале':1,
     'март':2,'марта':2,'марте':2,'апрель':3,'апреля':3,'апреле':3,
@@ -600,180 +394,419 @@ const MONTH_MAP = {
     'сентябрь':8,'сентября':8,'сентябре':8,'октябрь':9,'октября':9,'октябре':9,
     'ноябрь':10,'ноября':10,'ноябре':10,'декабрь':11,'декабря':11,'декабре':11,
 };
-
 const MONTH_RE = 'январ[яьеи]?|феврал[яьеи]?|март[аеи]?|апрел[яьеи]?|ма[йяе]|июн[яьеи]?|июл[яьеи]?|август[аеи]?|сентябр[яьеи]?|октябр[яьеи]?|ноябр[яьеи]?|декабр[яьеи]?';
 
 // ── State ──────────────────────────────────────────────────
-let notes    = JSON.parse(localStorage.getItem(NOTES_K))  || {};
-let groups   = JSON.parse(localStorage.getItem(GROUPS_K)) || JSON.parse(JSON.stringify(DEFAULT_GROUPS));
-let clists   = JSON.parse(localStorage.getItem(CLISTS_K)) || {};
+let notes      = JSON.parse(localStorage.getItem(NOTES_K))  || {};
+let groups     = JSON.parse(localStorage.getItem(GROUPS_K)) || JSON.parse(JSON.stringify(DEFAULT_GROUPS));
+let clists     = JSON.parse(localStorage.getItem(CLISTS_K)) || {};
 let clExpanded = {};
-let cur      = new Date();
-let sel      = null;
-let addColor = COLORS[5];
-let grpColor = COLORS[5];
-let ePalette = {};
+let cur        = new Date();       // anchor date for all views
+let sel        = null;             // selected day { year, month, day }
+let viewMode   = 'month';
+let addColor   = COLORS[5];
+let grpColor   = COLORS[5];
+let ePalette   = {};
 let smartParsed = null;
+let prefillTime = null;
 
-function saveNotes()  { localStorage.setItem(NOTES_K,  JSON.stringify(notes));  }
+function saveNotes()  { localStorage.setItem(NOTES_K,  JSON.stringify(notes)); }
 function saveGroups() { localStorage.setItem(GROUPS_K, JSON.stringify(groups)); }
 function saveClists() { localStorage.setItem(CLISTS_K, JSON.stringify(clists)); }
 function uid()        { return Math.random().toString(36).slice(2)+Date.now().toString(36); }
 function dk(y,m,d)   { return `${y}-${m}-${d}`; }
 function esc(s)       { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-// ── Calendar render ────────────────────────────────────────
-function renderCalendar() {
-    const y = cur.getFullYear(), m = cur.getMonth();
-    document.getElementById('calMonth').textContent = `${MONTHS[m]} ${y}`;
+// ── Date helpers ───────────────────────────────────────────
+function wkStart(date) {
+    const d = new Date(date), dow = d.getDay() || 7;
+    d.setDate(d.getDate() - dow + 1); d.setHours(0,0,0,0); return d;
+}
+function addDays(date, n) { const d = new Date(date); d.setDate(d.getDate()+n); return d; }
+function isToday(d) { const t=new Date(); return d.getDate()===t.getDate()&&d.getMonth()===t.getMonth()&&d.getFullYear()===t.getFullYear(); }
+function isSameDay(a,b) { return a.getDate()===b.getDate()&&a.getMonth()===b.getMonth()&&a.getFullYear()===b.getFullYear(); }
+function dateFromKey(key) { const [y,m,d]=key.split('-').map(Number); return new Date(y,m,d); }
 
-    const grid = document.getElementById('calGrid');
-    grid.innerHTML = '';
-
-    DAY_NAMES.forEach((n, i) => {
-        const el = document.createElement('div');
-        el.className = 'day-name' + (i >= 5 ? ' wknd' : '');
-        el.textContent = n;
-        grid.appendChild(el);
-    });
-
-    const dow0  = new Date(y, m, 1).getDay();
-    const start = dow0 === 0 ? 6 : dow0 - 1;
-    const dim   = new Date(y, m + 1, 0).getDate();
-    const dimp  = new Date(y, m, 0).getDate();
-    const today = new Date();
-    const pm = m === 0 ? 11 : m - 1, py = m === 0 ? y - 1 : y;
-
-    for (let i = start - 1; i >= 0; i--)
-        grid.appendChild(makeCell(py, pm, dimp - i, true, false, false));
-
-    for (let d = 1; d <= dim; d++) {
-        const isToday = y === today.getFullYear() && m === today.getMonth() && d === today.getDate();
-        const isSel   = sel && sel.year === y && sel.month === m && sel.day === d;
-        grid.appendChild(makeCell(y, m, d, false, isToday, isSel));
+function headerTitle() {
+    if (viewMode==='month') return `${MONTHS[cur.getMonth()]} ${cur.getFullYear()}`;
+    if (viewMode==='week') {
+        const ws=wkStart(cur), we=addDays(ws,6);
+        if (ws.getMonth()===we.getMonth())
+            return `${ws.getDate()}–${we.getDate()} ${MONTHS_GEN[ws.getMonth()]} ${ws.getFullYear()}`;
+        return `${ws.getDate()} ${MONTHS_GEN[ws.getMonth()]} – ${we.getDate()} ${MONTHS_GEN[we.getMonth()]} ${we.getFullYear()}`;
     }
-
-    const nm = m === 11 ? 0 : m + 1, ny = m === 11 ? y + 1 : y;
-    const rest = (start + dim) % 7 === 0 ? 0 : 7 - (start + dim) % 7;
-    for (let d = 1; d <= rest; d++)
-        grid.appendChild(makeCell(ny, nm, d, true, false, false));
+    return `${cur.getDate()} ${MONTHS_GEN[cur.getMonth()]} ${cur.getFullYear()}`;
 }
 
-function makeCell(y, m, d, other, isToday, isSel) {
-    const cell = document.createElement('div');
-    let cls = 'day-cell';
-    if (other)   cls += ' other-month';
-    if (isToday) cls += ' today';
-    if (isSel)   cls += ' selected';
-    cell.className = cls;
-    cell.onclick = () => selectDay(y, m, d);
+// ── Note model ─────────────────────────────────────────────
+function normalizeNote(n) {
+    const startTime = n.startTime || n.time || null;
+    const isAllDay  = n.isAllDay !== undefined ? n.isAllDay : !startTime;
+    return {
+        id:          n.id || uid(),
+        title:       n.title || n.text || '',
+        description: n.description || '',
+        color:       n.color || COLORS[5],
+        groupId:     n.groupId || null,
+        tags:        n.tags || [],
+        startTime,
+        endTime:     n.endTime || null,
+        isAllDay,
+        createdAt:   n.createdAt || Date.now(),
+        updatedAt:   n.updatedAt || Date.now(),
+    };
+}
+function getNotesForDay(y,m,d) { return (notes[dk(y,m,d)] || []).map(normalizeNote); }
 
-    const num = document.createElement('div');
-    num.className = 'day-num';
-    num.textContent = d;
-    cell.appendChild(num);
+// ── Time utils ─────────────────────────────────────────────
+function timeToMin(t) { if(!t) return 0; const[h,m]=t.split(':').map(Number); return h*60+m; }
+function timeToY(t)   { const[h,m]=t.split(':').map(Number); return Math.max(0,(h+m/60-GRID_START)*HOUR_H); }
+function minToTime(m) { return `${String(Math.floor(m/60)).padStart(2,'0')}:${String(m%60).padStart(2,'0')}`; }
+function yToTime(y)   { const m=Math.round(y/HOUR_H*60/15)*15; return minToTime(Math.max(GRID_START*60,Math.min(GRID_END*60-15,m+GRID_START*60))); }
 
-    const key = dk(y, m, d);
-    const dn  = notes[key] || [];
-    if (dn.length) {
-        const dots = document.createElement('div');
-        dots.className = 'note-dots';
-        dn.slice(0, 5).forEach(n => {
-            const dot = document.createElement('div');
-            dot.className = 'note-dot';
-            dot.style.background = n.color || COLORS[5];
-            dots.appendChild(dot);
-        });
-        cell.appendChild(dots);
-
-        // Show time chip if first note has time
-        if (dn[0].time) {
-            const tc = document.createElement('div');
-            tc.className = 'note-time-chip';
-            tc.textContent = '⏰ ' + dn[0].time;
-            cell.appendChild(tc);
+// Greedy column layout for overlapping events
+function layoutEvents(evs) {
+    const sorted = [...evs].sort((a,b)=>timeToMin(a.startTime)-timeToMin(b.startTime));
+    const cols = [];
+    sorted.forEach(ev => {
+        const eSt = timeToMin(ev.startTime);
+        const eEn = ev.endTime ? timeToMin(ev.endTime) : eSt+60;
+        let placed = false;
+        for (let ci=0; ci<cols.length; ci++) {
+            const last = cols[ci][cols[ci].length-1];
+            const lSt = timeToMin(last.startTime);
+            const lEn = last.endTime ? timeToMin(last.endTime) : lSt+60;
+            if (eSt >= lEn) { ev._col=ci; cols[ci].push(ev); placed=true; break; }
         }
+        if (!placed) { ev._col=cols.length; cols.push([ev]); }
+    });
+    const nc = cols.length||1;
+    sorted.forEach(ev => { ev._ncols=nc; });
+    return sorted;
+}
 
-        const snip = document.createElement('div');
-        snip.className = 'note-snippet';
-        snip.textContent = dn[0].text.split('\n')[0];
-        cell.appendChild(snip);
+// ── Navigation ─────────────────────────────────────────────
+function goToday() { cur=new Date(); render(); }
+function goPrev()  {
+    if (viewMode==='month')      cur.setMonth(cur.getMonth()-1);
+    else if (viewMode==='week')  cur=addDays(cur,-7);
+    else                         cur=addDays(cur,-1);
+    render();
+}
+function goNext()  {
+    if (viewMode==='month')      cur.setMonth(cur.getMonth()+1);
+    else if (viewMode==='week')  cur=addDays(cur,7);
+    else                         cur=addDays(cur,1);
+    render();
+}
+function setView(mode) { viewMode=mode; document.querySelectorAll('.view-btn').forEach(b=>b.classList.toggle('active',b.dataset.view===mode)); render(); }
+
+// ── Master render ──────────────────────────────────────────
+function render() {
+    document.getElementById('periodTitle').textContent = headerTitle();
+    document.querySelectorAll('.view-btn').forEach(b=>b.classList.toggle('active',b.dataset.view===viewMode));
+    const card = document.getElementById('calCard');
+    card.innerHTML=''; card.style.cssText='';
+    if (viewMode==='month')      renderMonth(card);
+    else if (viewMode==='week')  renderWeek(card);
+    else                         renderDay(card);
+}
+
+// ── Month view ─────────────────────────────────────────────
+function renderMonth(container) {
+    const y=cur.getFullYear(), m=cur.getMonth();
+    const grid = document.createElement('div'); grid.className='cal-grid';
+
+    // Day name headers
+    DAY_NAMES.forEach((n,i)=>{
+        const el=document.createElement('div');
+        el.className='day-name'+(i>=5?' wknd':''); el.textContent=n; grid.appendChild(el);
+    });
+
+    const dow0=new Date(y,m,1).getDay(), start=dow0===0?6:dow0-1;
+    const dim=new Date(y,m+1,0).getDate(), dimp=new Date(y,m,0).getDate();
+    const today=new Date();
+    const pm=m===0?11:m-1, py=m===0?y-1:y;
+    const nm=m===11?0:m+1, ny=m===11?y+1:y;
+
+    for(let i=start-1;i>=0;i--) grid.appendChild(buildMonthCell(py,pm,dimp-i,true));
+    for(let d=1;d<=dim;d++) {
+        const isToday2=y===today.getFullYear()&&m===today.getMonth()&&d===today.getDate();
+        const isSel=sel&&sel.year===y&&sel.month===m&&sel.day===d;
+        grid.appendChild(buildMonthCell(y,m,d,false,isToday2,isSel));
     }
+    const rest=(start+dim)%7===0?0:7-(start+dim)%7;
+    for(let d=1;d<=rest;d++) grid.appendChild(buildMonthCell(ny,nm,d,true));
 
+    container.appendChild(grid);
+}
+
+function buildMonthCell(y,m,d,other,today2,isSel) {
+    const cell=document.createElement('div');
+    let cls='day-cell';
+    if(other) cls+=' other-month'; if(today2) cls+=' today'; if(isSel) cls+=' selected';
+    cell.className=cls; cell.onclick=()=>selectDay(y,m,d);
+
+    const num=document.createElement('div'); num.className='day-num'; num.textContent=d; cell.appendChild(num);
+
+    const dn=getNotesForDay(y,m,d);
+    const timed=dn.filter(n=>!n.isAllDay), allday=dn.filter(n=>n.isAllDay);
+    const all=[...timed,...allday];
+    const maxChips=3;
+    all.slice(0,maxChips).forEach(n=>{
+        const chip=document.createElement('div');
+        chip.className='month-chip'+(n.isAllDay?' allday':' timed');
+        chip.style.background=n.color||COLORS[5];
+        chip.textContent=(n.startTime&&!n.isAllDay?n.startTime+' ':'')+(n.title||n.text||'');
+        chip.onclick=(e)=>{e.stopPropagation();selectDay(y,m,d);};
+        cell.appendChild(chip);
+    });
+    if(all.length>maxChips) {
+        const more=document.createElement('div'); more.className='month-more';
+        more.textContent=`+${all.length-maxChips} ещё`;
+        more.onclick=(e)=>{e.stopPropagation();selectDay(y,m,d);};
+        cell.appendChild(more);
+    }
     return cell;
 }
 
-function changeMonth(dir) {
-    cur.setMonth(cur.getMonth() + dir);
-    renderCalendar();
+// ── Week view ──────────────────────────────────────────────
+function renderWeek(container) {
+    const ws=wkStart(cur);
+    const days=Array.from({length:7},(_,i)=>addDays(ws,i));
+    container.style.cssText='display:flex;flex-direction:column;overflow:hidden;';
+
+    container.appendChild(makeColHdrs(days));
+    container.appendChild(makeAlldayStrip(days));
+    container.appendChild(makeTimeGrid(days));
+}
+
+// ── Day view ───────────────────────────────────────────────
+function renderDay(container) {
+    container.style.cssText='display:flex;flex-direction:column;overflow:hidden;';
+    const days=[new Date(cur.getFullYear(),cur.getMonth(),cur.getDate())];
+
+    // Top header
+    const top=document.createElement('div'); top.className='day-top';
+    top.innerHTML=`<div class="day-top-date">${cur.getDate()} ${MONTHS_GEN[cur.getMonth()]} ${cur.getFullYear()}</div>
+        <div class="day-top-dow">${DOWS_FULL[cur.getDay()]}</div>`;
+    container.appendChild(top);
+    container.appendChild(makeAlldayStrip(days));
+    container.appendChild(makeTimeGrid(days));
+}
+
+// ── Column headers ─────────────────────────────────────────
+function makeColHdrs(days) {
+    const wrap=document.createElement('div'); wrap.className='tgrid-col-hdrs';
+    const gut=document.createElement('div'); gut.className='tgutter'; wrap.appendChild(gut);
+    days.forEach(d=>{
+        const col=document.createElement('div');
+        let cls='tgrid-dcol-hdr';
+        if(isToday(d)) cls+=' today-col';
+        if(sel&&isSameDay(d,new Date(sel.year,sel.month,sel.day))) cls+=' sel-col';
+        col.className=cls;
+        col.innerHTML=`<div class="dcol-name">${DAY_NAMES[(d.getDay()+6)%7]}</div>
+            <div class="dcol-num${isToday(d)?' today':''}">${d.getDate()}</div>`;
+        col.onclick=()=>selectDay(d.getFullYear(),d.getMonth(),d.getDate());
+        wrap.appendChild(col);
+    });
+    return wrap;
+}
+
+// ── All-day strip ──────────────────────────────────────────
+function makeAlldayStrip(days) {
+    const wrap=document.createElement('div'); wrap.className='allday-strip';
+    const gut=document.createElement('div'); gut.className='allday-gutter'; gut.textContent='Весь день'; wrap.appendChild(gut);
+    days.forEach(d=>{
+        const col=document.createElement('div'); col.className='allday-col';
+        const dn=getNotesForDay(d.getFullYear(),d.getMonth(),d.getDate());
+        dn.filter(n=>n.isAllDay).forEach(n=>{
+            const chip=document.createElement('div'); chip.className='allday-chip';
+            chip.style.background=n.color||COLORS[5]; chip.textContent=n.title||n.text||'';
+            chip.onclick=()=>selectDay(d.getFullYear(),d.getMonth(),d.getDate());
+            col.appendChild(chip);
+        });
+        wrap.appendChild(col);
+    });
+    return wrap;
+}
+
+// ── Time grid ──────────────────────────────────────────────
+function makeTimeGrid(days) {
+    const scroll=document.createElement('div'); scroll.className='tgrid-scroll';
+    const inner=document.createElement('div'); inner.className='tgrid-inner';
+    inner.style.minHeight=((GRID_END-GRID_START)*HOUR_H)+'px';
+
+    // Hour labels
+    const hoursCol=document.createElement('div'); hoursCol.className='tgrid-hours';
+    for(let h=GRID_START;h<=GRID_END;h++) {
+        const lbl=document.createElement('div'); lbl.className='tlabel';
+        lbl.textContent=h<GRID_END?`${String(h).padStart(2,'0')}:00`:''; hoursCol.appendChild(lbl);
+    }
+    inner.appendChild(hoursCol);
+
+    // Day columns
+    days.forEach(d=>{
+        const dcol=document.createElement('div');
+        dcol.className='tgrid-dcol'+(isToday(d)?' today-dcol':'');
+        const hint=document.createElement('div'); hint.className='add-slot-hint'; dcol.appendChild(hint);
+
+        // Hour lines
+        for(let h=0;h<=(GRID_END-GRID_START);h++) {
+            const line=document.createElement('div'); line.className='hline';
+            line.style.top=h*HOUR_H+'px'; dcol.appendChild(line);
+            if(h<(GRID_END-GRID_START)) {
+                const half=document.createElement('div'); half.className='hline half';
+                half.style.top=(h*HOUR_H+HOUR_H/2)+'px'; dcol.appendChild(half);
+            }
+        }
+
+        // Click to add note
+        dcol.onclick=(e)=>{
+            if(e.target.closest('.evblock')) return;
+            const rect=dcol.getBoundingClientRect();
+            const relY=e.clientY-rect.top;
+            const mins=Math.round(relY/HOUR_H*60/15)*15+GRID_START*60;
+            const clamped=Math.max(GRID_START*60,Math.min(GRID_END*60-15,mins));
+            prefillTime=minToTime(clamped);
+            selectDay(d.getFullYear(),d.getMonth(),d.getDate(),prefillTime);
+        };
+
+        // Events
+        const dn=getNotesForDay(d.getFullYear(),d.getMonth(),d.getDate());
+        const timed=dn.filter(n=>!n.isAllDay&&n.startTime);
+        const laid=layoutEvents(timed);
+        laid.forEach(n=>{
+            const block=makeEvBlock(n,d.getFullYear(),d.getMonth(),d.getDate());
+            if(block) dcol.appendChild(block);
+        });
+
+        // Current time indicator (today only)
+        if(isToday(d)) {
+            const now=new Date();
+            const y=(now.getHours()+now.getMinutes()/60-GRID_START)*HOUR_H;
+            if(y>=0&&y<=(GRID_END-GRID_START)*HOUR_H) {
+                const line=document.createElement('div'); line.className='now-line'; line.style.top=y+'px';
+                const dot=document.createElement('div'); dot.className='now-dot'; line.appendChild(dot);
+                dcol.appendChild(line);
+            }
+        }
+
+        inner.appendChild(dcol);
+    });
+
+    scroll.appendChild(inner);
+    // Auto-scroll to 8am or current time
+    requestAnimationFrame(()=>{ scroll.scrollTop=Math.max(0,(new Date().getHours()-GRID_START-1)*HOUR_H); });
+    return scroll;
+}
+
+function makeEvBlock(n,y,m,d) {
+    if(!n.startTime) return null;
+    const st=timeToMin(n.startTime);
+    const en=n.endTime?timeToMin(n.endTime):st+60;
+    if(en<=GRID_START*60||st>=GRID_END*60) return null;
+
+    const top=timeToY(n.startTime);
+    const height=Math.max(22,(Math.min(en,GRID_END*60)-Math.max(st,GRID_START*60))/60*HOUR_H);
+
+    const block=document.createElement('div'); block.className='evblock';
+    block.style.cssText=`top:${top}px;height:${height}px;background:${n.color||COLORS[5]};`;
+    if(n._ncols>1) {
+        const w=100/n._ncols;
+        block.style.left=`${n._col*w+1}%`; block.style.right=`${100-(n._col+1)*w+1}%`;
+        block.style.width=''; block.style.right='';
+        block.style.width=`calc(${w}% - 3px)`;
+        block.style.left=`calc(${n._col*w}% + 2px)`;
+    }
+    block.innerHTML=`<div class="evblock-title">${esc(n.title||n.text||'')}</div>
+        ${height>36?`<div class="evblock-time">${n.startTime}${n.endTime?'–'+n.endTime:''}</div>`:''}`;
+    block.onclick=(e)=>{ e.stopPropagation(); selectDay(y,m,d); };
+    return block;
 }
 
 // ── Day panel ──────────────────────────────────────────────
-function selectDay(y, m, d) {
-    sel = { year: y, month: m, day: d };
-    document.getElementById('panelDate').textContent = `${d} ${MONTHS_GEN[m]} ${y}`;
+function selectDay(y,m,d,preTime=null) {
+    sel={year:y,month:m,day:d};
+    if(preTime) prefillTime=preTime;
+    document.getElementById('panelDate').textContent=`${d} ${MONTHS_GEN[m]} ${y}`;
     document.getElementById('sidePanel').classList.add('open');
     renderPanel();
-    renderCalendar();
+    if(viewMode==='month') render(); else renderColHdrHighlight();
+}
+
+function renderColHdrHighlight() {
+    document.querySelectorAll('.tgrid-dcol-hdr').forEach(el=>{
+        const d=parseInt(el.querySelector('.dcol-num')?.textContent);
+        // simple highlight update without full re-render
+    });
 }
 
 function closePanel() {
-    sel = null;
+    sel=null; prefillTime=null;
     document.getElementById('sidePanel').classList.remove('open');
-    renderCalendar();
+    if(viewMode==='month') render();
 }
 
 function renderPanel() {
-    if (!sel) return;
-    const key  = dk(sel.year, sel.month, sel.day);
-    const dn   = notes[key] || [];
-    const body = document.getElementById('panelBody');
-    body.innerHTML = '';
+    if(!sel) return;
+    const key=dk(sel.year,sel.month,sel.day);
+    const dn=notes[key]||[];
+    const body=document.getElementById('panelBody');
+    body.innerHTML='';
 
-    if (!dn.length) {
-        const e = document.createElement('div');
-        e.className = 'empty';
-        e.innerHTML = '<div class="empty-ico">📝</div><div class="empty-txt">Нет заметок на этот день</div>';
+    if(!dn.length) {
+        const e=document.createElement('div'); e.className='empty';
+        e.innerHTML='<div class="empty-ico">📝</div><div class="empty-txt">Нет заметок на этот день</div>';
         body.appendChild(e);
     } else {
-        dn.forEach(n => body.appendChild(makeNoteCard(n, key)));
+        dn.forEach(n=>body.appendChild(makeNoteCard(normalizeNote(n),key)));
     }
 
-    const addBtn = document.createElement('button');
-    addBtn.className = 'btn-add-note';
-    addBtn.innerHTML = '＋ Добавить заметку';
-    addBtn.onclick = openAddForm;
-    body.appendChild(addBtn);
-
+    const addBtn=document.createElement('button'); addBtn.className='btn-add-note';
+    addBtn.innerHTML='＋ Добавить заметку'; addBtn.onclick=openAddForm; body.appendChild(addBtn);
     body.appendChild(makeAddForm(key));
     body.appendChild(makeChecklistSection(key));
 }
 
-function makeNoteCard(note, key) {
-    const grp  = note.groupId ? groups.find(g => g.id === note.groupId) : null;
-    const card = document.createElement('div');
-    card.className = 'note-card';
-    card.id = 'card-' + note.id;
-    card.style.borderLeftColor = note.color || COLORS[5];
+// ── Note card ──────────────────────────────────────────────
+function makeNoteCard(note,key) {
+    const grp=note.groupId?groups.find(g=>g.id===note.groupId):null;
+    const card=document.createElement('div');
+    card.className='note-card'; card.id='card-'+note.id;
+    card.style.borderLeftColor=note.color||COLORS[5];
 
-    card.innerHTML = `
-        ${note.time ? `<div class="time-badge">⏰ ${note.time}</div>` : ''}
+    const timeStr=note.startTime&&!note.isAllDay
+        ?note.startTime+(note.endTime?' – '+note.endTime:'')
+        :null;
+
+    card.innerHTML=`
+        ${timeStr?`<div class="time-badge">⏰ ${timeStr}</div>`:''}
+        ${note.isAllDay?'<div class="time-badge" style="background:var(--today-bg);color:var(--today-ring);font-size:11px">📅 Весь день</div>':''}
         <div class="note-card-top">
-            <div class="note-text" id="nt-${note.id}">${esc(note.text)}</div>
+            <div class="note-text" id="nt-${note.id}">${esc(note.title||note.text||'')}</div>
             <div class="note-actions">
                 <button class="btn-icon" title="Редактировать" onclick="startEdit('${note.id}','${key}')">✏️</button>
                 <button class="btn-icon" title="Удалить" onclick="delNote('${note.id}','${key}')">🗑️</button>
             </div>
         </div>
+        ${note.description?`<div class="note-desc">${esc(note.description)}</div>`:''}
         <div class="note-meta">
-            <div class="color-pip" style="background:${note.color || COLORS[5]}"></div>
-            ${grp ? `<span class="grp-badge" style="background:${grp.color}">${esc(grp.name)}</span>` : ''}
+            <div class="color-pip" style="background:${note.color||COLORS[5]}"></div>
+            ${grp?`<span class="grp-badge" style="background:${grp.color}">${esc(grp.name)}</span>`:''}
         </div>
         <div class="edit-form" id="ef-${note.id}">
-            <textarea class="edit-ta" id="eta-${note.id}">${esc(note.text)}</textarea>
+            <input class="title-input" id="eti-title-${note.id}" value="${esc(note.title||note.text||'')}" placeholder="Заголовок…" style="margin-bottom:6px">
+            <textarea class="edit-ta" id="eta-${note.id}" placeholder="Описание…" style="min-height:50px">${esc(note.description||'')}</textarea>
             <div class="form-row">
-                <span class="form-lbl">Время:</span>
-                <input type="time" class="time-input" id="eti-${note.id}" value="${note.time || ''}">
+                <label class="allday-label">
+                    <input type="checkbox" class="allday-cb" id="ead-${note.id}" ${note.isAllDay?'checked':''} onchange="toggleAlldayEdit('${note.id}')">
+                    Весь день
+                </label>
+            </div>
+            <div class="form-row" id="etr-${note.id}" ${note.isAllDay?'style="display:none"':''}>
+                <span class="form-lbl">Начало:</span><input type="time" class="time-input" id="est-${note.id}" value="${note.startTime||''}">
+                <span class="form-lbl">Конец:</span><input type="time" class="time-input" id="een-${note.id}" value="${note.endTime||''}">
             </div>
             <div class="form-row">
                 <span class="form-lbl">Цвет:</span>
@@ -792,23 +825,32 @@ function makeNoteCard(note, key) {
             </div>
         </div>`;
 
-    ePalette[note.id] = note.color || COLORS[5];
-    requestAnimationFrame(() => {
-        buildPicker('ecp-' + note.id, note.color || COLORS[5], c => { ePalette[note.id] = c; });
-    });
-
+    ePalette[note.id]=note.color||COLORS[5];
+    requestAnimationFrame(()=>buildPicker('ecp-'+note.id,note.color||COLORS[5],c=>{ePalette[note.id]=c;}));
     return card;
 }
 
+function toggleAlldayEdit(nid) {
+    const isAD=document.getElementById('ead-'+nid).checked;
+    const tr=document.getElementById('etr-'+nid);
+    if(tr) tr.style.display=isAD?'none':'';
+}
+
 function makeAddForm(key) {
-    const f = document.createElement('div');
-    f.className = 'add-form';
-    f.id = 'addForm';
-    f.innerHTML = `
-        <textarea class="add-ta" id="addTa" placeholder="Текст заметки…" rows="3"></textarea>
+    const f=document.createElement('div'); f.className='add-form'; f.id='addForm';
+    const initTime=prefillTime||'';
+    f.innerHTML=`
+        <input class="title-input" id="addTitle" placeholder="Заголовок заметки…" style="margin-bottom:6px">
+        <textarea class="add-ta" id="addTa" placeholder="Описание (необязательно)…" rows="2"></textarea>
         <div class="form-row">
-            <span class="form-lbl">Время:</span>
-            <input type="time" class="time-input" id="addTime">
+            <label class="allday-label">
+                <input type="checkbox" class="allday-cb" id="addAD" ${!initTime?'checked':''} onchange="toggleAlldayAdd()">
+                Весь день
+            </label>
+        </div>
+        <div class="form-row" id="addTimeRow" ${!initTime?'style="display:none"':''}>
+            <span class="form-lbl">Начало:</span><input type="time" class="time-input" id="addSt" value="${initTime}">
+            <span class="form-lbl">Конец:</span><input type="time" class="time-input" id="addEn">
         </div>
         <div class="form-row">
             <span class="form-lbl">Цвет:</span>
@@ -826,668 +868,228 @@ function makeAddForm(key) {
             <button class="btn btn-primary" onclick="addNote('${key}')">Добавить</button>
         </div>`;
 
-    requestAnimationFrame(() => buildPicker('addCp', addColor, c => { addColor = c; }));
+    requestAnimationFrame(()=>buildPicker('addCp',addColor,c=>{addColor=c;}));
     return f;
 }
 
+function toggleAlldayAdd() {
+    const isAD=document.getElementById('addAD').checked;
+    const tr=document.getElementById('addTimeRow');
+    if(tr) tr.style.display=isAD?'none':'';
+}
+
 function openAddForm() {
-    const f = document.getElementById('addForm');
-    if (f) { f.classList.add('on'); document.getElementById('addTa').focus(); }
+    prefillTime=null;
+    const f=document.getElementById('addForm'); if(f){f.classList.add('on');document.getElementById('addTitle').focus();}
 }
-function closeAddForm() {
-    const f = document.getElementById('addForm');
-    if (f) f.classList.remove('on');
-}
+function closeAddForm() { const f=document.getElementById('addForm'); if(f) f.classList.remove('on'); prefillTime=null; }
 
 function addNote(key) {
-    const text = (document.getElementById('addTa').value || '').trim();
-    if (!text) return;
-    const gid  = document.getElementById('addGs').value;
-    const time = document.getElementById('addTime').value || null;
-    if (!notes[key]) notes[key] = [];
-    notes[key].push({ id: uid(), text, color: addColor, groupId: gid || null, time });
-    saveNotes(); renderCalendar(); renderPanel();
+    const title=(document.getElementById('addTitle').value||'').trim();
+    if(!title) return;
+    const desc=(document.getElementById('addTa').value||'').trim();
+    const isAD=document.getElementById('addAD').checked;
+    const st=isAD?null:(document.getElementById('addSt').value||null);
+    const en=isAD?null:(document.getElementById('addEn').value||null);
+    const gid=document.getElementById('addGs').value;
+
+    if(!notes[key]) notes[key]=[];
+    notes[key].push({id:uid(),title,description:desc,color:addColor,groupId:gid||null,tags:[],
+        startTime:st,endTime:en,isAllDay:isAD,createdAt:Date.now(),updatedAt:Date.now()});
+    saveNotes(); prefillTime=null; render(); renderPanel();
 }
 
-function startEdit(nid, key) {
-    document.getElementById('nt-' + nid).classList.add('editing');
-    document.getElementById('ef-' + nid).classList.add('on');
-    document.getElementById('eta-' + nid).focus();
+function startEdit(nid,key) {
+    document.getElementById('nt-'+nid).classList.add('editing');
+    document.getElementById('ef-'+nid).classList.add('on');
+    document.getElementById('eti-title-'+nid).focus();
 }
 function cancelEdit(nid) {
-    document.getElementById('nt-' + nid).classList.remove('editing');
-    document.getElementById('ef-' + nid).classList.remove('on');
+    document.getElementById('nt-'+nid).classList.remove('editing');
+    document.getElementById('ef-'+nid).classList.remove('on');
 }
-function saveEdit(nid, key) {
-    const text = (document.getElementById('eta-' + nid).value || '').trim();
-    if (!text) return;
-    const gid  = document.getElementById('egs-' + nid).value;
-    const time = document.getElementById('eti-' + nid).value || null;
-    const note = (notes[key] || []).find(n => n.id === nid);
-    if (note) { note.text = text; note.color = ePalette[nid] || note.color; note.groupId = gid || null; note.time = time; }
-    saveNotes(); renderCalendar(); renderPanel();
+function saveEdit(nid,key) {
+    const title=(document.getElementById('eti-title-'+nid).value||'').trim(); if(!title) return;
+    const desc=(document.getElementById('eta-'+nid).value||'').trim();
+    const isAD=document.getElementById('ead-'+nid).checked;
+    const st=isAD?null:(document.getElementById('est-'+nid).value||null);
+    const en=isAD?null:(document.getElementById('een-'+nid).value||null);
+    const gid=document.getElementById('egs-'+nid).value;
+    const raw=(notes[key]||[]).find(n=>n.id===nid);
+    if(raw){raw.title=title;raw.text=title;raw.description=desc;raw.color=ePalette[nid]||raw.color;
+        raw.groupId=gid||null;raw.startTime=st;raw.endTime=en;raw.isAllDay=isAD;raw.updatedAt=Date.now();}
+    saveNotes(); render(); renderPanel();
 }
-function delNote(nid, key) {
-    if (!notes[key]) return;
-    notes[key] = notes[key].filter(n => n.id !== nid);
-    if (!notes[key].length) delete notes[key];
-    saveNotes(); renderCalendar(); renderPanel();
+function delNote(nid,key) {
+    if(!notes[key]) return;
+    notes[key]=notes[key].filter(n=>n.id!==nid);
+    if(!notes[key].length) delete notes[key];
+    saveNotes(); render(); renderPanel();
 }
 
 // ── Color picker ───────────────────────────────────────────
-function buildPicker(cid, current, onChange) {
-    const el = document.getElementById(cid);
-    if (!el) return;
-    el.innerHTML = '';
-    COLORS.forEach(c => {
-        const s = document.createElement('div');
-        s.className = 'swatch' + (c === current ? ' on' : '');
-        s.style.background = c;
-        s.onclick = () => {
-            el.querySelectorAll('.swatch').forEach(x => x.classList.remove('on'));
-            s.classList.add('on'); onChange(c);
-        };
+function buildPicker(cid,current,onChange) {
+    const el=document.getElementById(cid); if(!el) return; el.innerHTML='';
+    COLORS.forEach(c=>{
+        const s=document.createElement('div'); s.className='swatch'+(c===current?' on':''); s.style.background=c;
+        s.onclick=()=>{el.querySelectorAll('.swatch').forEach(x=>x.classList.remove('on'));s.classList.add('on');onChange(c);};
         el.appendChild(s);
     });
 }
 
 // ── Search ─────────────────────────────────────────────────
-let srTimer = null;
-function handleSearch(q) {
-    clearTimeout(srTimer);
-    srTimer = setTimeout(() => doSearch(q.trim()), 220);
-}
+let srTimer=null;
+function handleSearch(q){clearTimeout(srTimer);srTimer=setTimeout(()=>doSearch(q.trim()),220);}
 function doSearch(q) {
-    const el = document.getElementById('searchResults');
-    if (!q) { el.classList.remove('on'); el.innerHTML = ''; return; }
-
-    const low  = q.toLowerCase();
-    const hits = [];
-    Object.entries(notes).forEach(([key, dn]) => {
-        const [y,m,d] = key.split('-').map(Number);
-        dn.forEach(n => { if (n.text.toLowerCase().includes(low)) hits.push({ y, m, d, n }); });
+    const el=document.getElementById('searchResults');
+    if(!q){el.classList.remove('on');el.innerHTML='';return;}
+    const low=q.toLowerCase(), hits=[];
+    Object.entries(notes).forEach(([key,dn])=>{
+        const[y,m,d]=key.split('-').map(Number);
+        dn.forEach(n=>{
+            const nn=normalizeNote(n);
+            if((nn.title+' '+nn.description).toLowerCase().includes(low)) hits.push({y,m,d,n:nn});
+        });
     });
-    hits.sort((a,b) => new Date(b.y,b.m,b.d) - new Date(a.y,a.m,a.d));
-
-    el.classList.add('on');
-    el.innerHTML = '';
-    const title = document.createElement('div');
-    title.className = 'sr-title';
-    title.textContent = hits.length
-        ? `Найдено: ${hits.length} ${plural(hits.length,'заметка','заметки','заметок')}`
-        : 'Ничего не найдено';
+    hits.sort((a,b)=>new Date(b.y,b.m,b.d)-new Date(a.y,a.m,a.d));
+    el.classList.add('on'); el.innerHTML='';
+    const title=document.createElement('div'); title.className='sr-title';
+    title.textContent=hits.length?`Найдено: ${hits.length} ${plural(hits.length,'заметка','заметки','заметок')}`:'Ничего не найдено';
     el.appendChild(title);
-
-    if (!hits.length) {
-        const e = document.createElement('div');
-        e.className = 'sr-empty';
-        e.textContent = `По запросу «${q}» заметок нет`;
-        el.appendChild(e); return;
-    }
-
-    hits.forEach(({ y, m, d, n }) => {
-        const grp  = n.groupId ? groups.find(g => g.id === n.groupId) : null;
-        const item = document.createElement('div');
-        item.className = 'sr-item';
-        item.style.borderLeftColor = n.color || COLORS[5];
-        item.innerHTML = `
-            <div class="sr-date">
-                ${n.time ? `<span class="note-time-chip" style="margin-right:6px">⏰ ${n.time}</span>` : ''}
-                ${d} ${MONTHS_GEN[m]} ${y}
-                ${grp ? `<span class="grp-badge" style="background:${grp.color};margin-left:6px">${esc(grp.name)}</span>` : ''}
-            </div>
-            <div class="sr-text">${hilite(esc(n.text), q)}</div>`;
-        item.onclick = () => {
-            cur = new Date(y, m, 1);
-            document.getElementById('searchInput').value = '';
-            el.classList.remove('on'); el.innerHTML = '';
-            renderCalendar(); selectDay(y, m, d);
-        };
+    if(!hits.length){const e=document.createElement('div');e.className='sr-empty';e.textContent=`По запросу «${q}» заметок нет`;el.appendChild(e);return;}
+    hits.forEach(({y,m,d,n})=>{
+        const grp=n.groupId?groups.find(g=>g.id===n.groupId):null;
+        const item=document.createElement('div'); item.className='sr-item'; item.style.borderLeftColor=n.color||COLORS[5];
+        item.innerHTML=`<div class="sr-date">${n.startTime&&!n.isAllDay?`<span class="note-time-chip" style="margin-right:6px">⏰ ${n.startTime}</span>`:''}${d} ${MONTHS_GEN[m]} ${y}${grp?`<span class="grp-badge" style="background:${grp.color};margin-left:6px">${esc(grp.name)}</span>`:''}</div>
+            <div class="sr-text">${hilite(esc(n.title||''),q)}</div>`;
+        item.onclick=()=>{cur=new Date(y,m,1);document.getElementById('searchInput').value='';el.classList.remove('on');el.innerHTML='';render();selectDay(y,m,d);};
         el.appendChild(item);
     });
 }
-
-function hilite(txt, q) {
-    const rx = new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi');
-    return txt.replace(rx, '<mark>$1</mark>');
-}
-function plural(n, one, few, many) {
-    if (n % 10 === 1 && n % 100 !== 11) return one;
-    if ([2,3,4].includes(n % 10) && ![12,13,14].includes(n % 100)) return few;
-    return many;
-}
+function hilite(txt,q){return txt.replace(new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi'),'<mark>$1</mark>');}
+function plural(n,one,few,many){if(n%10===1&&n%100!==11)return one;if([2,3,4].includes(n%10)&&![12,13,14].includes(n%100))return few;return many;}
 
 // ── Groups ─────────────────────────────────────────────────
-function openGroups() {
-    renderGrpList();
-    buildPicker('grpCpick', grpColor, c => { grpColor = c; });
-    document.getElementById('grpOverlay').classList.add('on');
-}
-function closeGroups() { document.getElementById('grpOverlay').classList.remove('on'); }
-function renderGrpList() {
-    const list = document.getElementById('grpList');
-    list.innerHTML = '';
-    if (!groups.length) { list.innerHTML = '<div class="sr-empty">Группы не созданы</div>'; return; }
-    groups.forEach(g => {
-        const item = document.createElement('div');
-        item.className = 'grp-item';
-        item.innerHTML = `
-            <div class="grp-circ" style="background:${g.color}"></div>
-            <div class="grp-name">${esc(g.name)}</div>
-            <button class="btn-icon" onclick="delGroup('${g.id}')">🗑️</button>`;
+function openGroups(){renderGrpList();buildPicker('grpCpick',grpColor,c=>{grpColor=c;});document.getElementById('grpOverlay').classList.add('on');}
+function closeGroups(){document.getElementById('grpOverlay').classList.remove('on');}
+function renderGrpList(){
+    const list=document.getElementById('grpList'); list.innerHTML='';
+    if(!groups.length){list.innerHTML='<div class="sr-empty">Группы не созданы</div>';return;}
+    groups.forEach(g=>{
+        const item=document.createElement('div'); item.className='grp-item';
+        item.innerHTML=`<div class="grp-circ" style="background:${g.color}"></div><div class="grp-name-el">${esc(g.name)}</div><button class="btn-icon" onclick="delGroup('${g.id}')">🗑️</button>`;
         list.appendChild(item);
     });
 }
-function addGroup() {
-    const name = (document.getElementById('newGrpName').value || '').trim();
-    if (!name) return;
-    groups.push({ id: uid(), name, color: grpColor });
-    saveGroups();
-    document.getElementById('newGrpName').value = '';
-    renderGrpList();
-}
-function delGroup(id) {
-    groups = groups.filter(g => g.id !== id);
-    Object.values(notes).forEach(dn => dn.forEach(n => { if (n.groupId === id) n.groupId = null; }));
-    saveNotes(); saveGroups(); renderGrpList();
-    if (sel) renderPanel();
-}
-
-// ── Smart note parser ──────────────────────────────────────
-function parseMonthName(s) {
-    const v = MONTH_MAP[(s || '').toLowerCase().trim()];
-    return v !== undefined ? v : null;
-}
-
-function nextWeekday(targetDow) {
-    const today = new Date();
-    let diff = targetDow - today.getDay();
-    if (diff <= 0) diff += 7;
-    const d = new Date(today);
-    d.setDate(today.getDate() + diff);
-    d.setHours(0,0,0,0);
-    return d;
-}
-
-function parseDotDate(s) {
-    const m1 = s.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
-    if (m1) return new Date(+m1[3], +m1[2]-1, +m1[1]);
-    const m2 = s.match(/^(\d{1,2})\.(\d{1,2})$/);
-    if (m2) {
-        const today = new Date();
-        let d = new Date(today.getFullYear(), +m2[2]-1, +m2[1]);
-        if (d <= today) d = new Date(today.getFullYear()+1, +m2[2]-1, +m2[1]);
-        return d;
-    }
-    return null;
-}
-
-function parseTagDate(s) {
-    const lower = s.toLowerCase().trim();
-    const re = new RegExp('^(\\d{1,2}|[а-яё]+(?:\\s+[а-яё]+)?)\\s+(' + MONTH_RE + ')$', 'i');
-    const m = lower.match(re);
-    if (!m) return null;
-    const dayStr = m[1].trim();
-    const day = /^\d+$/.test(dayStr) ? parseInt(dayStr) : ORDINALS[dayStr];
-    if (!day || day < 1 || day > 31) return null;
-    const mon = parseMonthName(m[2]);
-    if (mon === null) return null;
-    const today = new Date();
-    let d = new Date(today.getFullYear(), mon, day);
-    if (d <= today) d = new Date(today.getFullYear()+1, mon, day);
-    d.setHours(0,0,0,0);
-    return d;
-}
-
-function parseDateFromText(text) {
-    const lower = text.toLowerCase();
-    if (/\bсегодня\b/.test(lower)) { const d = new Date(); d.setHours(0,0,0,0); return d; }
-    if (/\bзавтра\b/.test(lower))   { const d = new Date(); d.setDate(d.getDate()+1); d.setHours(0,0,0,0); return d; }
-    if (/\bпослезавтра\b/.test(lower)) { const d = new Date(); d.setDate(d.getDate()+2); d.setHours(0,0,0,0); return d; }
-
-    // "13 июня" or "13 июня 2026"
-    const re1 = new RegExp('(\\d{1,2})\\s+(' + MONTH_RE + ')(?:\\s+(\\d{4}))?', 'i');
-    const m1  = lower.match(re1);
-    if (m1) {
-        const day = parseInt(m1[1]), mon = parseMonthName(m1[2]);
-        if (mon !== null) {
-            const year = m1[3] ? parseInt(m1[3]) : new Date().getFullYear();
-            let d = new Date(year, mon, day);
-            if (!m1[3] && d <= new Date()) d = new Date(year+1, mon, day);
-            d.setHours(0,0,0,0); return d;
-        }
-    }
-
-    // Day of week in plain text
-    for (const [word, dow] of Object.entries(DOW_MAP)) {
-        if (new RegExp('\\b' + word + '\\b').test(lower)) return nextWeekday(dow);
-    }
-    return null;
-}
-
-function extractHashtags(text) {
-    const results = [];
-    const used    = new Array(text.length).fill(false);
-
-    // Pass 1: "#DD месяц" or "#ordinal месяц" (multi-word date tags)
-    const re1 = new RegExp('#(\\d{1,2}|[а-яёА-ЯЁ]+(?:\\s+[а-яёА-ЯЁ]+)?)\\s+(' + MONTH_RE + ')(?=\\s|$|,|\\.|!)', 'gi');
-    let m;
-    while ((m = re1.exec(text)) !== null) {
-        const raw = m[0], val = m[1].trim() + ' ' + m[2];
-        results.push({ raw, val });
-        for (let i = m.index; i < m.index + raw.length; i++) used[i] = true;
-    }
-
-    // Pass 2: simple hashtags (no spaces)
-    const re2 = /#([а-яёА-ЯЁa-zA-Z0-9.:_-]+)/g;
-    while ((m = re2.exec(text)) !== null) {
-        if (!used[m.index]) results.push({ raw: m[0], val: m[1] });
-    }
-
-    return results;
-}
-
-function parseSmartNote(rawText) {
-    const tags  = extractHashtags(rawText);
-    let pDate = null, pTime = null, pColor = null, pGroupId = null;
-    const used  = new Set();
-
-    for (const tag of tags) {
-        const v = tag.val.toLowerCase().trim();
-
-        // Color
-        const col = COLOR_WORDS[v];
-        if (col) { pColor = col; used.add(tag.raw); continue; }
-
-        // Day of week
-        if (Object.prototype.hasOwnProperty.call(DOW_MAP, v)) {
-            if (!pDate) pDate = nextWeekday(DOW_MAP[v]);
-            used.add(tag.raw); continue;
-        }
-
-        // Time HH:MM
-        if (/^\d{1,2}:\d{2}$/.test(v)) {
-            if (!pTime) pTime = v.replace(/^(\d):/, '0$1:');
-            used.add(tag.raw); continue;
-        }
-
-        // Date DD.MM or DD.MM.YYYY
-        const dd = parseDotDate(v);
-        if (dd) { if (!pDate) pDate = dd; used.add(tag.raw); continue; }
-
-        // Date "DD месяц" or "ordinal месяц"
-        const td = parseTagDate(v);
-        if (td) { if (!pDate) pDate = td; used.add(tag.raw); continue; }
-
-        // Group match (case-insensitive)
-        const grpMatch = groups.find(g => g.name.toLowerCase() === v);
-        if (grpMatch) { pGroupId = grpMatch.id; used.add(tag.raw); continue; }
-
-        // Unknown tag — stays in text
-    }
-
-    // Remove used tags from text
-    let clean = rawText;
-    [...used].sort((a,b) => b.length - a.length).forEach(raw => {
-        clean = clean.split(raw).join('');
-    });
-    clean = clean.replace(/[ \t]{2,}/g, ' ').replace(/\n{3,}/g, '\n\n').trim();
-
-    // Extract time from text if not found in tags
-    if (!pTime) {
-        const t1 = clean.match(/\bв\s+(\d{1,2}:\d{2})\b/i);
-        if (t1) { pTime = t1[1].replace(/^(\d):/, '0$1:'); }
-        else {
-            const t2 = clean.match(/\bв\s+(\d{1,2})\s+час/i);
-            if (t2) pTime = t2[1].padStart(2,'0') + ':00';
-            else {
-                const t3 = clean.match(/\bв\s+(\d{1,2})\s+утра?\b/i);
-                if (t3) pTime = t3[1].padStart(2,'0') + ':00';
-                else {
-                    const t4 = clean.match(/\bв\s+(\d{1,2})\s+вечера?\b/i);
-                    if (t4) { const h = parseInt(t4[1]); pTime = (h < 12 ? h+12 : h).toString().padStart(2,'0') + ':00'; }
-                }
-            }
-        }
-    }
-
-    // Extract date from text if not found in tags
-    if (!pDate) pDate = parseDateFromText(clean);
-
-    // Default to today
-    if (!pDate) { pDate = new Date(); pDate.setHours(0,0,0,0); }
-
-    return { text: clean, date: pDate, time: pTime, color: pColor || COLORS[5], groupId: pGroupId };
-}
-
-// ── Smart note UI ──────────────────────────────────────────
-function openSmart() {
-    smartParsed = null;
-    document.getElementById('smartTa').value = '';
-    document.getElementById('smartPreview').innerHTML = '';
-    document.getElementById('smartPreview').classList.remove('on');
-    document.getElementById('smartOverlay').classList.add('on');
-    document.getElementById('smartTa').focus();
-}
-
-function closeSmart() {
-    document.getElementById('smartOverlay').classList.remove('on');
-    smartParsed = null;
-}
-
-function updateSmartPreview() {
-    const raw  = document.getElementById('smartTa').value;
-    const prev = document.getElementById('smartPreview');
-    if (!raw.trim()) { prev.innerHTML = ''; prev.classList.remove('on'); smartParsed = null; return; }
-
-    smartParsed = parseSmartNote(raw);
-    prev.classList.add('on');
-
-    const d    = smartParsed.date;
-    const dStr = `${d.getDate()} ${MONTHS_GEN[d.getMonth()]} ${d.getFullYear()}`;
-    const grp  = smartParsed.groupId ? groups.find(g => g.id === smartParsed.groupId) : null;
-    const col  = smartParsed.color;
-
-    prev.innerHTML = `
-        <div class="prev-chip date">📅 ${dStr}</div>
-        ${smartParsed.time ? `<div class="prev-chip time">⏰ ${smartParsed.time}</div>` : ''}
-        <div class="prev-chip" style="border-color:${col}">
-            <span style="width:10px;height:10px;border-radius:50%;background:${col};display:inline-block;flex-shrink:0"></span>
-            <span style="color:${col}">Цвет</span>
-        </div>
-        ${grp ? `<div class="prev-chip"><span class="grp-badge" style="background:${grp.color}">${esc(grp.name)}</span></div>` : ''}
-        ${smartParsed.text
-            ? `<div class="prev-text-row"><b>Текст:</b> ${esc(smartParsed.text.slice(0,120))}${smartParsed.text.length>120?'…':''}</div>`
-            : '<div class="prev-text-row" style="color:var(--danger)">Текст заметки пустой — добавьте содержимое</div>'
-        }`;
-}
-
-function createSmartNote() {
-    const raw = (document.getElementById('smartTa').value || '').trim();
-    if (!raw) return;
-    if (!smartParsed) smartParsed = parseSmartNote(raw);
-
-    const noteText = smartParsed.text || raw;
-    const d  = smartParsed.date;
-    const y  = d.getFullYear(), m = d.getMonth(), day = d.getDate();
-    const key = dk(y, m, day);
-
-    if (!notes[key]) notes[key] = [];
-    notes[key].push({
-        id: uid(),
-        text: noteText,
-        color: smartParsed.color,
-        groupId: smartParsed.groupId || null,
-        time: smartParsed.time || null,
-    });
-
-    saveNotes();
-    closeSmart();
-    cur = new Date(y, m, 1);
-    renderCalendar();
-    selectDay(y, m, day);
-}
+function addGroup(){const name=(document.getElementById('newGrpName').value||'').trim();if(!name)return;groups.push({id:uid(),name,color:grpColor});saveGroups();document.getElementById('newGrpName').value='';renderGrpList();}
+function delGroup(id){groups=groups.filter(g=>g.id!==id);Object.values(notes).forEach(dn=>dn.forEach(n=>{if(n.groupId===id)n.groupId=null;}));saveNotes();saveGroups();renderGrpList();if(sel)renderPanel();}
 
 // ── Checklists ─────────────────────────────────────────────
-function clGetDay(key) { return clists[key] || []; }
-function clIsAllDone(cl) { return cl.items.length > 0 && cl.items.every(i => i.done); }
+function clGetDay(key){return clists[key]||[];}
+function clIsAllDone(cl){return cl.items.length>0&&cl.items.every(i=>i.done);}
+function clCreateNew(key){if(!clists[key])clists[key]=[];const cl={id:uid(),created:Date.now(),items:[]};clists[key].push(cl);saveClists();renderPanel();requestAnimationFrame(()=>{const i=document.getElementById('cladd-'+cl.id);if(i)i.focus();});}
+function clDelete(clId,key){if(!clists[key])return;clists[key]=clists[key].filter(c=>c.id!==clId);if(!clists[key].length)delete clists[key];saveClists();renderPanel();}
+function clAddItem(clId,key,text){text=(text||'').trim();if(!text)return false;const cl=(clists[key]||[]).find(c=>c.id===clId);if(!cl)return false;cl.items.push({id:uid(),text,done:false,starred:false});saveClists();renderPanel();requestAnimationFrame(()=>{const i=document.getElementById('cladd-'+clId);if(i)i.focus();});return true;}
+function clToggleDone(clId,itemId,key){const cl=(clists[key]||[]).find(c=>c.id===clId);const item=cl&&cl.items.find(i=>i.id===itemId);if(item){item.done=!item.done;saveClists();renderPanel();}}
+function clToggleStar(clId,itemId,key){const cl=(clists[key]||[]).find(c=>c.id===clId);if(!cl)return;const item=cl.items.find(i=>i.id===itemId);if(!item)return;item.starred=!item.starred;if(item.starred){const idx=cl.items.indexOf(item);cl.items.splice(idx,1);const ls=cl.items.reduce((acc,it,i)=>it.starred?i:acc,-1);cl.items.splice(ls+1,0,item);}saveClists();renderPanel();}
+function clDelItem(clId,itemId,key){const cl=(clists[key]||[]).find(c=>c.id===clId);if(!cl)return;cl.items=cl.items.filter(i=>i.id!==itemId);saveClists();renderPanel();}
+function clToggleExpand(clId){clExpanded[clId]=!clExpanded[clId];const body=document.getElementById('clcollbody-'+clId);const chev=document.getElementById('clchev-'+clId);if(body)body.classList.toggle('open',clExpanded[clId]);if(chev)chev.classList.toggle('open',clExpanded[clId]);}
 
-function clCreateNew(key) {
-    if (!clists[key]) clists[key] = [];
-    const cl = { id: uid(), created: Date.now(), items: [] };
-    clists[key].push(cl);
-    saveClists(); renderPanel();
-    requestAnimationFrame(() => { const i = document.getElementById('cladd-' + cl.id); if (i) i.focus(); });
-}
-
-function clDelete(clId, key) {
-    if (!clists[key]) return;
-    clists[key] = clists[key].filter(c => c.id !== clId);
-    if (!clists[key].length) delete clists[key];
-    saveClists(); renderPanel();
-}
-
-function clAddItem(clId, key, text) {
-    text = (text || '').trim();
-    if (!text) return false;
-    const cl = (clists[key] || []).find(c => c.id === clId);
-    if (!cl) return false;
-    cl.items.push({ id: uid(), text, done: false, starred: false });
-    saveClists(); renderPanel();
-    requestAnimationFrame(() => { const i = document.getElementById('cladd-' + clId); if (i) i.focus(); });
-    return true;
-}
-
-function clToggleDone(clId, itemId, key) {
-    const cl = (clists[key] || []).find(c => c.id === clId);
-    const item = cl && cl.items.find(i => i.id === itemId);
-    if (item) { item.done = !item.done; saveClists(); renderPanel(); }
-}
-
-function clToggleStar(clId, itemId, key) {
-    const cl = (clists[key] || []).find(c => c.id === clId);
-    if (!cl) return;
-    const item = cl.items.find(i => i.id === itemId);
-    if (!item) return;
-    item.starred = !item.starred;
-    if (item.starred) {
-        const idx = cl.items.indexOf(item);
-        cl.items.splice(idx, 1);
-        const lastStar = cl.items.reduce((acc, it, i) => it.starred ? i : acc, -1);
-        cl.items.splice(lastStar + 1, 0, item);
-    }
-    saveClists(); renderPanel();
-}
-
-function clDelItem(clId, itemId, key) {
-    const cl = (clists[key] || []).find(c => c.id === clId);
-    if (!cl) return;
-    cl.items = cl.items.filter(i => i.id !== itemId);
-    saveClists(); renderPanel();
-}
-
-function clToggleExpand(clId) {
-    clExpanded[clId] = !clExpanded[clId];
-    const body = document.getElementById('clcollbody-' + clId);
-    const chev = document.getElementById('clchev-' + clId);
-    if (body) body.classList.toggle('open', clExpanded[clId]);
-    if (chev) chev.classList.toggle('open', clExpanded[clId]);
-}
-
-// ── Checklist render ───────────────────────────────────────
 function makeChecklistSection(key) {
-    const [y, m, d] = key.split('-').map(Number);
-    const isPast = new Date(y, m, d) < new Date(new Date().toDateString());
+    const[y,m,d]=key.split('-').map(Number);
+    const isPast=new Date(y,m,d)<new Date(new Date().toDateString());
+    const allCls=clGetDay(key);
+    const activeCls=isPast?[]:allCls.filter(cl=>!clIsAllDone(cl));
+    const collCls=isPast?allCls:allCls.filter(cl=>clIsAllDone(cl));
+    const wrap=document.createElement('div');
+    const div=document.createElement('div');div.className='cl-divider';wrap.appendChild(div);
+    const section=document.createElement('div');section.className='cl-section';
+    const hdr=document.createElement('div');hdr.className='cl-section-hdr';hdr.textContent='☑ Чеклист';section.appendChild(hdr);
+    if(allCls.length===0){section.appendChild(makeClEmptyPrompt(key));}
+    else{activeCls.forEach(cl=>section.appendChild(makeClCard(cl,key)));if(!isPast)section.appendChild(makeNewClBtn(key));if(collCls.length){const sh=document.createElement('div');sh.className='cl-sub-hdr';sh.textContent=isPast?'Все чеклисты':'Выполненные';section.appendChild(sh);collCls.forEach(cl=>section.appendChild(makeClCollapsed(cl,key)));}if(isPast)section.appendChild(makeNewClBtn(key));}
+    wrap.appendChild(section);return wrap;
+}
+function makeClEmptyPrompt(key){const wrap=document.createElement('div');wrap.className='cl-empty-prompt';const label=document.createElement('span');label.textContent='✚ Создать первый пункт';const inp=document.createElement('input');inp.className='cl-input';inp.placeholder='Первый пункт…';inp.style.display='none';inp.onkeydown=e=>{if(e.key==='Enter'){const text=inp.value.trim();if(!text)return;if(!clists[key])clists[key]=[];const cl={id:uid(),created:Date.now(),items:[{id:uid(),text,done:false,starred:false}]};clists[key].push(cl);saveClists();renderPanel();}else if(e.key==='Escape'){inp.style.display='none';label.style.display='';}};inp.onblur=()=>{if(!inp.value.trim()){inp.style.display='none';label.style.display='';}};wrap.onclick=()=>{label.style.display='none';inp.style.display='';inp.focus();};wrap.appendChild(label);wrap.appendChild(inp);return wrap;}
+function makeClCard(cl,key){const card=document.createElement('div');card.className='cl-card';const list=document.createElement('div');list.className='cl-items-list';cl.items.forEach(item=>list.appendChild(makeClItem(item,cl.id,key)));card.appendChild(list);const addRow=document.createElement('div');addRow.className='cl-add-row';const addInp=document.createElement('input');addInp.className='cl-input';addInp.id='cladd-'+cl.id;addInp.placeholder=cl.items.length?'Добавить пункт…':'Первый пункт…';addInp.onkeydown=e=>{if(e.key==='Enter')clAddItem(cl.id,key,addInp.value);};addRow.appendChild(addInp);card.appendChild(addRow);if(clIsAllDone(cl)){const banner=document.createElement('div');banner.className='cl-done-banner';const del=document.createElement('button');del.className='btn btn-ghost';del.textContent='Удалить';del.onclick=()=>clDelete(cl.id,key);const newBtn=document.createElement('button');newBtn.className='btn btn-primary';newBtn.textContent='Новый чеклист';newBtn.onclick=()=>clCreateNew(key);banner.innerHTML='<span>🎉 Все выполнено!</span>';banner.appendChild(del);banner.appendChild(newBtn);card.appendChild(banner);}return card;}
+function makeClItem(item,clId,key){const row=document.createElement('div');row.className='cl-item'+(item.starred?' starred':'');const star=document.createElement('button');star.className='cl-star'+(item.starred?' on':'');star.textContent=item.starred?'★':'☆';star.onclick=()=>clToggleStar(clId,item.id,key);const chk=document.createElement('input');chk.type='checkbox';chk.className='cl-check';chk.checked=item.done;chk.onchange=()=>clToggleDone(clId,item.id,key);const txt=document.createElement('span');txt.className='cl-item-text'+(item.done?' done':'');txt.textContent=item.text;const del=document.createElement('button');del.className='cl-item-del';del.textContent='✕';del.onclick=()=>clDelItem(clId,item.id,key);row.appendChild(star);row.appendChild(chk);row.appendChild(txt);row.appendChild(del);return row;}
+function makeClCollapsed(cl,key){const dc=cl.items.filter(i=>i.done).length,tot=cl.items.length,isExp=!!clExpanded[cl.id];const wrap=document.createElement('div');wrap.className='cl-collapsed';const hdr=document.createElement('div');hdr.className='cl-coll-hdr';hdr.innerHTML=`<span class="cl-coll-status">${clIsAllDone(cl)?'✅':'📋'}</span><span class="cl-coll-info">${dc}/${tot} выполнено</span><span class="cl-coll-chevron${isExp?' open':''}" id="clchev-${cl.id}">▸</span>`;hdr.onclick=()=>clToggleExpand(cl.id);const body=document.createElement('div');body.className='cl-coll-body'+(isExp?' open':'');body.id='clcollbody-'+cl.id;cl.items.forEach(item=>{const row=document.createElement('div');row.className='cl-coll-item';const chk=document.createElement('input');chk.type='checkbox';chk.className='cl-coll-check';chk.checked=item.done;chk.disabled=true;const starEl=document.createElement('span');starEl.className='cl-coll-star';starEl.textContent=item.starred?'★':'';const txtEl=document.createElement('span');txtEl.className='cl-coll-text'+(item.done?' done':'');txtEl.textContent=item.text;row.appendChild(chk);row.appendChild(starEl);row.appendChild(txtEl);body.appendChild(row);});wrap.appendChild(hdr);wrap.appendChild(body);return wrap;}
+function makeNewClBtn(key){const btn=document.createElement('button');btn.className='btn-new-cl';btn.innerHTML='＋ Новый чеклист';btn.onclick=()=>clCreateNew(key);return btn;}
 
-    const allCls     = clGetDay(key);
-    const activeCls  = isPast ? [] : allCls.filter(cl => !clIsAllDone(cl));
-    const collCls    = isPast ? allCls : allCls.filter(cl => clIsAllDone(cl));
+// ── Smart note parser ──────────────────────────────────────
+function parseMonthName(s){const v=MONTH_MAP[(s||'').toLowerCase().trim()];return v!==undefined?v:null;}
+function nextWeekday(targetDow){const today=new Date();let diff=targetDow-today.getDay();if(diff<=0)diff+=7;const d=new Date(today);d.setDate(today.getDate()+diff);d.setHours(0,0,0,0);return d;}
+function parseDotDate(s){const m1=s.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);if(m1)return new Date(+m1[3],+m1[2]-1,+m1[1]);const m2=s.match(/^(\d{1,2})\.(\d{1,2})$/);if(m2){const today=new Date();let d=new Date(today.getFullYear(),+m2[2]-1,+m2[1]);if(d<=today)d=new Date(today.getFullYear()+1,+m2[2]-1,+m2[1]);return d;}return null;}
+function parseTagDate(s){const lower=s.toLowerCase().trim();const re=new RegExp('^(\\d{1,2}|[а-яё]+(?:\\s+[а-яё]+)?)\\s+('+MONTH_RE+')$','i');const m=lower.match(re);if(!m)return null;const dayStr=m[1].trim();const day=/^\d+$/.test(dayStr)?parseInt(dayStr):ORDINALS[dayStr];if(!day||day<1||day>31)return null;const mon=parseMonthName(m[2]);if(mon===null)return null;const today=new Date();let d=new Date(today.getFullYear(),mon,day);if(d<=today)d=new Date(today.getFullYear()+1,mon,day);d.setHours(0,0,0,0);return d;}
+function parseDateFromText(text){const lower=text.toLowerCase();if(/\bсегодня\b/.test(lower)){const d=new Date();d.setHours(0,0,0,0);return d;}if(/\bзавтра\b/.test(lower)){const d=new Date();d.setDate(d.getDate()+1);d.setHours(0,0,0,0);return d;}if(/\bпослезавтра\b/.test(lower)){const d=new Date();d.setDate(d.getDate()+2);d.setHours(0,0,0,0);return d;}const re1=new RegExp('(\\d{1,2})\\s+('+MONTH_RE+')(?:\\s+(\\d{4}))?','i');const m1=lower.match(re1);if(m1){const day=parseInt(m1[1]),mon=parseMonthName(m1[2]);if(mon!==null){const year=m1[3]?parseInt(m1[3]):new Date().getFullYear();let d=new Date(year,mon,day);if(!m1[3]&&d<=new Date())d=new Date(year+1,mon,day);d.setHours(0,0,0,0);return d;}}for(const[word,dow]of Object.entries(DOW_MAP)){if(new RegExp('\\b'+word+'\\b').test(lower))return nextWeekday(dow);}return null;}
+function extractHashtags(text){const results=[],used=new Array(text.length).fill(false);const re1=new RegExp('#(\\d{1,2}|[а-яёА-ЯЁ]+(?:\\s+[а-яёА-ЯЁ]+)?)\\s+('+MONTH_RE+')(?=\\s|$|,|\\.|!)','gi');let m;while((m=re1.exec(text))!==null){const raw=m[0],val=m[1].trim()+' '+m[2];results.push({raw,val});for(let i=m.index;i<m.index+raw.length;i++)used[i]=true;}const re2=/#([а-яёА-ЯЁa-zA-Z0-9.:_-]+)/g;while((m=re2.exec(text))!==null){if(!used[m.index])results.push({raw:m[0],val:m[1]});}return results;}
 
-    const wrap = document.createElement('div');
+const ALLDAY_WORDS=new Set(['allday','all-day','весьдень','весь-день','целыйдень','неделю','week','наделю','на-неделю']);
 
-    const divider = document.createElement('div');
-    divider.className = 'cl-divider';
-    wrap.appendChild(divider);
-
-    const section = document.createElement('div');
-    section.className = 'cl-section';
-
-    const hdr = document.createElement('div');
-    hdr.className = 'cl-section-hdr';
-    hdr.textContent = '☑ Чеклист';
-    section.appendChild(hdr);
-
-    if (allCls.length === 0) {
-        section.appendChild(makeClEmptyPrompt(key));
-    } else {
-        activeCls.forEach(cl => section.appendChild(makeClCard(cl, key)));
-        if (!isPast) section.appendChild(makeNewClBtn(key));
-        if (collCls.length) {
-            const sh = document.createElement('div');
-            sh.className = 'cl-sub-hdr';
-            sh.textContent = isPast ? 'Все чеклисты' : 'Выполненные';
-            section.appendChild(sh);
-            collCls.forEach(cl => section.appendChild(makeClCollapsed(cl, key)));
-        }
-        if (isPast) section.appendChild(makeNewClBtn(key));
+function parseSmartNote(rawText){
+    const tags=extractHashtags(rawText);
+    let pDate=null,pTime=null,pColor=null,pGroupId=null,pIsAllDay=false;
+    const used=new Set();
+    for(const tag of tags){
+        const v=tag.val.toLowerCase().trim();
+        if(ALLDAY_WORDS.has(v)){pIsAllDay=true;used.add(tag.raw);continue;}
+        const col=COLOR_WORDS[v];if(col){pColor=col;used.add(tag.raw);continue;}
+        if(Object.prototype.hasOwnProperty.call(DOW_MAP,v)){if(!pDate)pDate=nextWeekday(DOW_MAP[v]);used.add(tag.raw);continue;}
+        if(/^\d{1,2}:\d{2}$/.test(v)){if(!pTime)pTime=v.replace(/^(\d):/,'0$1:');used.add(tag.raw);continue;}
+        const dd=parseDotDate(v);if(dd){if(!pDate)pDate=dd;used.add(tag.raw);continue;}
+        const td=parseTagDate(v);if(td){if(!pDate)pDate=td;used.add(tag.raw);continue;}
+        const grpMatch=groups.find(g=>g.name.toLowerCase()===v);if(grpMatch){pGroupId=grpMatch.id;used.add(tag.raw);continue;}
     }
-
-    wrap.appendChild(section);
-    return wrap;
+    let clean=rawText;
+    [...used].sort((a,b)=>b.length-a.length).forEach(raw=>{clean=clean.split(raw).join('');});
+    clean=clean.replace(/[ \t]{2,}/g,' ').replace(/\n{3,}/g,'\n\n').trim();
+    if(!pTime&&!pIsAllDay){const t1=clean.match(/\bв\s+(\d{1,2}:\d{2})\b/i);if(t1){pTime=t1[1].replace(/^(\d):/,'0$1:');}else{const t2=clean.match(/\bв\s+(\d{1,2})\s+час/i);if(t2)pTime=t2[1].padStart(2,'0')+':00';else{const t3=clean.match(/\bв\s+(\d{1,2})\s+утра?\b/i);if(t3)pTime=t3[1].padStart(2,'0')+':00';else{const t4=clean.match(/\bв\s+(\d{1,2})\s+вечера?\b/i);if(t4){const h=parseInt(t4[1]);pTime=(h<12?h+12:h).toString().padStart(2,'0')+':00';}}}}}
+    if(!pDate)pDate=parseDateFromText(clean);
+    if(!pDate){pDate=new Date();pDate.setHours(0,0,0,0);}
+    if(pTime)pIsAllDay=false;
+    return{text:clean,date:pDate,time:pTime,color:pColor||COLORS[5],groupId:pGroupId,isAllDay:pIsAllDay};
 }
 
-function makeClEmptyPrompt(key) {
-    const wrap = document.createElement('div');
-    wrap.className = 'cl-empty-prompt';
-
-    const label = document.createElement('span');
-    label.textContent = '✚ Создать первый пункт';
-
-    const inp = document.createElement('input');
-    inp.className = 'cl-input cl-empty-inp-row';
-    inp.placeholder = 'Первый пункт…';
-    inp.style.display = 'none';
-    inp.onkeydown = e => {
-        if (e.key === 'Enter') {
-            const text = inp.value.trim();
-            if (!text) return;
-            if (!clists[key]) clists[key] = [];
-            const cl = { id: uid(), created: Date.now(), items: [{ id: uid(), text, done: false, starred: false }] };
-            clists[key].push(cl);
-            saveClists(); renderPanel();
-        } else if (e.key === 'Escape') {
-            inp.style.display = 'none'; label.style.display = '';
-        }
-    };
-    inp.onblur = () => { if (!inp.value.trim()) { inp.style.display = 'none'; label.style.display = ''; } };
-
-    wrap.onclick = () => { label.style.display = 'none'; inp.style.display = ''; inp.focus(); };
-    wrap.appendChild(label);
-    wrap.appendChild(inp);
-    return wrap;
+function openSmart(){smartParsed=null;document.getElementById('smartTa').value='';document.getElementById('smartPreview').innerHTML='';document.getElementById('smartPreview').classList.remove('on');document.getElementById('smartOverlay').classList.add('on');document.getElementById('smartTa').focus();}
+function closeSmart(){document.getElementById('smartOverlay').classList.remove('on');smartParsed=null;}
+function updateSmartPreview(){
+    const raw=document.getElementById('smartTa').value;
+    const prev=document.getElementById('smartPreview');
+    if(!raw.trim()){prev.innerHTML='';prev.classList.remove('on');smartParsed=null;return;}
+    smartParsed=parseSmartNote(raw);prev.classList.add('on');
+    const d=smartParsed.date,dStr=`${d.getDate()} ${MONTHS_GEN[d.getMonth()]} ${d.getFullYear()}`;
+    const grp=smartParsed.groupId?groups.find(g=>g.id===smartParsed.groupId):null;
+    const col=smartParsed.color;
+    prev.innerHTML=`
+        <div class="prev-chip date">📅 ${dStr}</div>
+        ${smartParsed.isAllDay?'<div class="prev-chip time">📅 Весь день</div>':''}
+        ${smartParsed.time&&!smartParsed.isAllDay?`<div class="prev-chip time">⏰ ${smartParsed.time}</div>`:''}
+        <div class="prev-chip" style="border-color:${col}"><span style="width:10px;height:10px;border-radius:50%;background:${col};display:inline-block;flex-shrink:0"></span><span style="color:${col}">Цвет</span></div>
+        ${grp?`<div class="prev-chip"><span class="grp-badge" style="background:${grp.color}">${esc(grp.name)}</span></div>`:''}
+        ${smartParsed.text?`<div class="prev-text-row"><b>Текст:</b> ${esc(smartParsed.text.slice(0,120))}${smartParsed.text.length>120?'…':''}</div>`:'<div class="prev-text-row" style="color:var(--danger)">Текст заметки пустой</div>'}`;
+}
+function createSmartNote(){
+    const raw=(document.getElementById('smartTa').value||'').trim();if(!raw)return;
+    if(!smartParsed)smartParsed=parseSmartNote(raw);
+    const noteText=smartParsed.text||raw;
+    const d=smartParsed.date;const y=d.getFullYear(),m=d.getMonth(),day=d.getDate();
+    const key=dk(y,m,day);
+    if(!notes[key])notes[key]=[];
+    notes[key].push({id:uid(),title:noteText,text:noteText,description:'',color:smartParsed.color,groupId:smartParsed.groupId||null,tags:[],startTime:smartParsed.isAllDay?null:smartParsed.time||null,endTime:null,isAllDay:smartParsed.isAllDay||!smartParsed.time,createdAt:Date.now(),updatedAt:Date.now()});
+    saveNotes();closeSmart();cur=new Date(y,m,1);render();selectDay(y,m,day);
 }
 
-function makeClCard(cl, key) {
-    const card = document.createElement('div');
-    card.className = 'cl-card';
-
-    const list = document.createElement('div');
-    list.className = 'cl-items-list';
-    cl.items.forEach(item => list.appendChild(makeClItem(item, cl.id, key)));
-    card.appendChild(list);
-
-    const addRow = document.createElement('div');
-    addRow.className = 'cl-add-row';
-    const addInp = document.createElement('input');
-    addInp.className = 'cl-input';
-    addInp.id = 'cladd-' + cl.id;
-    addInp.placeholder = cl.items.length ? 'Добавить пункт…' : 'Первый пункт…';
-    addInp.onkeydown = e => { if (e.key === 'Enter') clAddItem(cl.id, key, addInp.value); };
-    addRow.appendChild(addInp);
-    card.appendChild(addRow);
-
-    if (clIsAllDone(cl)) {
-        const banner = document.createElement('div');
-        banner.className = 'cl-done-banner';
-        const del = document.createElement('button');
-        del.className = 'btn btn-ghost'; del.textContent = 'Удалить';
-        del.onclick = () => clDelete(cl.id, key);
-        const newBtn = document.createElement('button');
-        newBtn.className = 'btn btn-primary'; newBtn.textContent = 'Новый чеклист';
-        newBtn.onclick = () => clCreateNew(key);
-        banner.innerHTML = '<span>🎉 Все выполнено!</span>';
-        banner.appendChild(del); banner.appendChild(newBtn);
-        card.appendChild(banner);
-    }
-
-    return card;
-}
-
-function makeClItem(item, clId, key) {
-    const row = document.createElement('div');
-    row.className = 'cl-item' + (item.starred ? ' starred' : '');
-
-    const star = document.createElement('button');
-    star.className = 'cl-star' + (item.starred ? ' on' : '');
-    star.textContent = item.starred ? '★' : '☆';
-    star.title = item.starred ? 'Убрать из избранного' : 'В избранное';
-    star.onclick = () => clToggleStar(clId, item.id, key);
-
-    const chk = document.createElement('input');
-    chk.type = 'checkbox'; chk.className = 'cl-check'; chk.checked = item.done;
-    chk.onchange = () => clToggleDone(clId, item.id, key);
-
-    const txt = document.createElement('span');
-    txt.className = 'cl-item-text' + (item.done ? ' done' : '');
-    txt.textContent = item.text;
-
-    const del = document.createElement('button');
-    del.className = 'cl-item-del'; del.textContent = '✕'; del.title = 'Удалить пункт';
-    del.onclick = () => clDelItem(clId, item.id, key);
-
-    row.appendChild(star); row.appendChild(chk); row.appendChild(txt); row.appendChild(del);
-    return row;
-}
-
-function makeClCollapsed(cl, key) {
-    const doneCount = cl.items.filter(i => i.done).length;
-    const total = cl.items.length;
-    const isExp = !!clExpanded[cl.id];
-
-    const wrap = document.createElement('div');
-    wrap.className = 'cl-collapsed';
-
-    const hdr = document.createElement('div');
-    hdr.className = 'cl-coll-hdr';
-    hdr.innerHTML = `
-        <span class="cl-coll-status">${clIsAllDone(cl) ? '✅' : '📋'}</span>
-        <span class="cl-coll-info">${doneCount}/${total} выполнено</span>
-        <span class="cl-coll-chevron${isExp ? ' open' : ''}" id="clchev-${cl.id}">▸</span>`;
-    hdr.onclick = () => clToggleExpand(cl.id);
-
-    const body = document.createElement('div');
-    body.className = 'cl-coll-body' + (isExp ? ' open' : '');
-    body.id = 'clcollbody-' + cl.id;
-
-    cl.items.forEach(item => {
-        const row = document.createElement('div');
-        row.className = 'cl-coll-item';
-        const chk = document.createElement('input');
-        chk.type = 'checkbox'; chk.className = 'cl-coll-check'; chk.checked = item.done; chk.disabled = true;
-        const starEl = document.createElement('span');
-        starEl.className = 'cl-coll-star'; starEl.textContent = item.starred ? '★' : '';
-        const txtEl = document.createElement('span');
-        txtEl.className = 'cl-coll-text' + (item.done ? ' done' : ''); txtEl.textContent = item.text;
-        row.appendChild(chk); row.appendChild(starEl); row.appendChild(txtEl);
-        body.appendChild(row);
-    });
-
-    wrap.appendChild(hdr); wrap.appendChild(body);
-    return wrap;
-}
-
-function makeNewClBtn(key) {
-    const btn = document.createElement('button');
-    btn.className = 'btn-new-cl'; btn.innerHTML = '＋ Новый чеклист';
-    btn.onclick = () => clCreateNew(key);
-    return btn;
-}
-
-// ── Keyboard shortcuts ─────────────────────────────────────
-document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') {
-        if (document.getElementById('smartOverlay').classList.contains('on')) { closeSmart(); return; }
-        if (document.getElementById('grpOverlay').classList.contains('on'))   { closeGroups(); return; }
+// ── Keyboard ───────────────────────────────────────────────
+document.addEventListener('keydown',e=>{
+    if(e.key==='Escape'){
+        if(document.getElementById('smartOverlay').classList.contains('on')){closeSmart();return;}
+        if(document.getElementById('grpOverlay').classList.contains('on')){closeGroups();return;}
         closePanel();
     }
 });
-
-document.getElementById('smartTa').addEventListener('keydown', e => {
-    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) createSmartNote();
-});
+document.getElementById('smartTa').addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.ctrlKey||e.metaKey))createSmartNote();});
 
 // ── Init ───────────────────────────────────────────────────
-renderCalendar();
+setView('month');
 </script>
 </body>
 </html>
